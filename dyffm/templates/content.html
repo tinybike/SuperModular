@@ -1,157 +1,96 @@
 <div class="row full-width">
-  <div class="large-12 columns">
-    <div class="large-4 columns" id="wallet-block">
+  <div class="row">
+    <div class="large-12 columns" id="wallet-block">
       <form id="existing-wallet" method="POST" action='#'>
-        <center><h5>{{ session.user }}'s wallet</h5></center>
-        <center><span id="wallet-address">{{ session.address }}</span></center>
+        <center><h5>{{ session.user }}</h5></center>
         <hr />
         <div id="display-dyff-balance"></div>
-        <div id="display-balance">Connecting...</div>
         <div id="display-coin-balance"></div>
         <hr />
-        <div id="transaction-results"></div>
       </form>
     </div>
-    <div class="large-8 columns" style="float:right;padding-right:0;">
-      <dl class="tabs" data-tab style="float:right">
-        <dd class="active" id="predict-tab">
-          <a href="#panel2-3"><h4>Predict<br /><small>the market</small></h4></a>
-        </dd>
-        <dd id="battle-tab">
-          <a href="#panel2-4"><h4>Battle<br /><small>of the coins</small></h4></a>
-        </dd>
-      </dl>
-      <div style="clear:both"></div>
-      <div class="tabs-content">
-        <div class="content active" id="panel2-3">
-          <div class="row centered">
-            <h4>Betting on: <span class="predict-selected-market">Bitcoin</span></h4>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <div class="large-8 columns" style="float:right;padding-right:0;">
+        <dl class="tabs" data-tab style="float:right">
+          <dd id="predict-tab">
+            <a href="#panel2-3"><h4>Share<br /><small>music</small></h4></a>
+          </dd>
+          <dd class="active" id="battle-tab">
+            <a href="#panel2-4"><h4>Head-to-head<br /><small>song battle</small></h4></a>
+          </dd>
+        </dl>
+        <div style="clear:both"></div>
+        <div class="tabs-content">
+          <div class="content" id="panel2-3">
+            no sharing for you
           </div>
-          <div class="row centered">
-            <h5>Starting price: <span id="starting-price"></span></h5>
-          </div>
-          <div class="row centered">
-            <h5>Current price: <span id="current-price"></span> <span id="price-change"></span></h5>
-          </div>
-          <div class="row centered">
-            <h6>
-              Current round ends in 
-            </h6>
-            <div class="time-remaining">
-              <div class="cell">
-                <div class="digits"></div>
+          <div class="content active" id="panel2-4">
+            <div class="row centered">
+              <h4>Betting on: <span class="selected-market-left">Dogecoin</span> vs <span class="selected-market-right">Bitcoin</span></h4>
+            </div>
+            <div class="row centered">
+              <h6>
+                Current round ends in 
+              </h6>
+              <div class="time-remaining">
+                <div class="cell">
+                  <div class="digits"></div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row centered">
-            <div class="large-6 columns">
-              <div class="row centered"><h5>Price will go down: <span id="pool-down">0</span> <span id="pool-down-denomination"></span> in pool</h5></div>
-              <div class="row centered">
-                <div class="current-bets" id="current-bets-down"></div>
-              </div>
-              <form id="bet-down" method="POST" action="#">
+            <div class="row centered">
+              <div class="large-6 columns">
+                <div class="row centered"><h4 class="selected-market-left"> <span id="price-change-left"></span></h5></div>
                 <div class="row centered">
-                  <div class="large-8 columns">
-                    <input type="text" id="bet-input-down" placeholder="Amount to bet" required />
-                  </div>
-                  <div class="large-4 columns end">
-                    <select id="bet-denomination-down">
-                      <option value="DYF">Dyffs (DYF)</option>
-                    </select>
-                  </div>
+                  <div class="current-bets" id="current-bets-left"></div>
                 </div>
-                <div class="row centered">
-                  <button type="submit" class="button expand small radius bet-button">
-                    Bet <span class="predict-selected-market">Bitcoin</span> will go DOWN
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div class="large-6 columns end">
-              <div class="row centered"><h5>Price will go up: <span id="pool-up">0</span> <span id="pool-up-denomination"></span> in pool</h5></div>
-              <div class="row centered">
-                <div class="current-bets" id="current-bets-up"></div>
-              </div>
-              <form id="bet-up" method="POST" action="#">
-                <div class="row centered">
-                  <div class="large-8 columns">
-                    <input type="text" id="bet-input-up" placeholder="Amount to bet" required />
-                  </div>
-                  <div class="large-4 columns end">
-                    <select id="bet-denomination-up">
-                      <option value="DYF">Dyffs (DYF)</option>
-                    </select>
+                <form id="bet-left" method="POST" action="#">
+                  <div class="row centered">
+                    <div class="large-8 columns">
+                      <input type="text" id="bet-input-left" placeholder="Amount to bet" />
+                    </div>
+                    <div class="large-4 columns end">
+                      <select id="bet-denomination-left">
+                        <option value="DYF">Dyffs (DYF)</option>
+                        <option value="ROX">Roxcoins (ROX)</option>
+                        <option value="BTC">Bitcoins (BTC)</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="row centered">
                     <button type="submit" class="button expand small radius bet-button">
-                      Bet <span class="predict-selected-market">Bitcoin</span> will go UP
+                      Bet on <span class="selected-market-left"></span>
                     </button>
                   </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="content" id="panel2-4">
-          <div class="row centered">
-            <h4>Betting on: <span class="selected-market-left">Dogecoin</span> vs <span class="selected-market-right">Bitcoin</span></h4>
-          </div>
-          <div class="row centered">
-            <h6>
-              Current round ends in 
-            </h6>
-            <div class="time-remaining">
-              <div class="cell">
-                <div class="digits"></div>
+                </form>
               </div>
-            </div>
-          </div>
-          <div class="row centered">
-            <div class="large-6 columns">
-              <div class="row centered"><h4 class="selected-market-left">Dogecoin <span id="price-change-left"></span></h5></div>
-              <div class="row centered">
-                <div class="current-bets" id="current-bets-left"></div>
-              </div>
-              <form id="bet-left" method="POST" action="#">
+              <div class="large-6 columns end">
+                <div class="row centered"><h4 class="selected-market-right"> <span id="price-change-right"></span></h5></div>
                 <div class="row centered">
-                  <div class="large-8 columns">
-                    <input type="text" id="bet-input-left" placeholder="Amount to bet" />
-                  </div>
-                  <div class="large-4 columns end">
-                    <select id="bet-denomination-left">
-                      <option value="DYF">Dyffs (DYF)</option>
-                    </select>
-                  </div>
+                  <div class="current-bets" id="current-bets-right"></div>
                 </div>
-                <div class="row centered">
-                  <button type="submit" class="button expand small radius bet-button">
-                    Bet on <span class="selected-market-left">Dogecoin</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div class="large-6 columns end">
-              <div class="row centered"><h4 class="selected-market-right">Bitcoin <span id="price-change-right"></span></h5></div>
-              <div class="row centered">
-                <div class="current-bets" id="current-bets-right"></div>
-              </div>
-              <form id="bet-right" method="POST" action="#">
-                <div class="row centered">
-                  <div class="large-8 columns">
-                    <input type="text" id="bet-input-right" placeholder="Amount to bet" />
-                  </div>
-                  <div class="large-4 columns end">
-                    <select id="bet-denomination-right">
-                      <option value="DYF">Dyffs (DYF)</option>
-                    </select>
-                  </div>
+                <form id="bet-right" method="POST" action="#">
                   <div class="row centered">
-                    <button type="submit" class="button expand small radius bet-button">
-                      Bet on <span class="selected-market-left">Bitcoin</span>
-                    </button>
+                    <div class="large-8 columns">
+                      <input type="text" id="bet-input-right" placeholder="Amount to bet" />
+                    </div>
+                    <div class="large-4 columns end">
+                      <select id="bet-denomination-right">
+                        <option value="DYF">Dyffs (DYF)</option>
+                        <option value="ROX">Roxcoins (ROX)</option>
+                        <option value="BTC">Bitcoins (BTC)</option>
+                      </select>
+                    </div>
+                    <div class="row centered">
+                      <button type="submit" class="button expand small radius bet-button">
+                        Bet on <span class="selected-market-left"></span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -160,39 +99,16 @@
   </div>
 </div>
 <div class="row full-width">
-  <div class="large-6 columns">
+  <div class="large-12 columns">
     <div id="chat-box">
       <div id="babble">Welcome to dyf.fm!</div>
     </div>
   </div>
-  <div class="large-6 columns end">
-    <div id="display-orders">
-      <div id="loading-circle">
-        <img src="{{ url_for('static', filename='img/loading.gif') }}" id="loading" />
-        <br /><br />
-        Loading order book...
-      </div>
-    </div>
-  </div>
   <div class="vertical-spacer-25"></div>
-  <div class="large-6 columns">
+  <div class="large-12 columns">
     <form id="broadcast" method="POST" action='#'>
       <input type="text" name="broadcast_data" id="broadcast_data" placeholder="Say something!" />
       <input type="submit" value="Babble" class="right" />
     </form>
   </div>
-  <form id="get-order-book" method="POST" action='#'>
-    <div class="large-4 columns">
-      <select id="order-book-picker">
-        <option value="XRP-BTC.Bitstamp">Ripple vs Bitcoin (Bitstamp)</option>
-        <option value="XRP-USD.Bitstamp">Ripple vs US Dollar (Bitstamp)</option>
-      </select>
-    </div>
-    <div class="large-2 columns end">
-      <input type="text" id="order-book-limit" placeholder="# results" />
-    </div>
-    <div class="row full-width">
-      <input type="submit" value="Go" class="right" />
-    </div>
-  </form>
 </div>
