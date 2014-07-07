@@ -1,0 +1,6 @@
+SECRET_KEY = 'UNIQUE SECRET KEY' 
+
+POSTGRES_HOST = 'localhost'
+POSTGRES_DATABASE = 'database name'
+POSTGRES_USER = 'username'
+POSTGRES_PASSWORD = 'password'
