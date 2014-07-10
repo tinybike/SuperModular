@@ -6,16 +6,12 @@ DEPLOY_ENV = os.environ.get('DEPLOY_ENV', 'local')
 DEBUG = True if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true' else False
 
 # setup postgres from os env
-POSTGRES_HOST = os.environ.get('POSTGRES_HOST')
-POSTGRES_PORT = os.environ.get('POSTGRES_PORT', '5432')
-POSTGRES_DATABASE = os.environ.get('POSTGRES_DATABASE')
-POSTGRES_USER = os.environ.get('POSTGRES_USER')
-POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
 # flask-security
 SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
 SECURITY_LOGIN_URL = '/foo1'    #    
-SECURITY_LOGOUT_URL = '/foo2'   # pushing flask-sec's packaged view out of way for now
+SECURITY_LOGOUT_URL = '/foo2'   # pushing flask-sec's packaged views out of way for now
 SECURITY_REGISTER_URL = '/foo3' #
 
 TESTING = False
