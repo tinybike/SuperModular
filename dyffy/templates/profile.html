@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block main %}
+  <div class="profile page row" id="user-profile">
+    <div class="small-12 columns">
+
+      <div class="row">
+
+        <div class="medium-3 columns">
+          <div id="profile-pic">
+            {% if facebook_url == None %}
+              <img src="{{ url_for('static', filename='uploads/'+profile_pic) }}" alt="profile pic" />
+            {% else %}
+              <img src="{{ profile_pic }}" alt="profile pic" />
+            {% endif %}
+          </div>
+          <div id="edit-profile-pic">
+            {% if facebook_url == None %}
+              <img src="{{ url_for('static', filename='uploads/'+profile_pic) }}" alt="profile pic" />
+            {% else %}
+              <img src="{{ profile_pic }}" alt="profile pic" />
+            {% endif %}
+          </div>
+        </div>
+        <div class="medium-9 columns end" id="vitals">
+          <h2 class="profile-username">{{ username }}<br/><small><hr />{{ full_name if full_name != None }} {{ ' · '+location if location != None }}</small></h2>
+          <p>dyffy member since {{ joined }} | last active on {{ active }}</p>
+          <p>Wallet: {{ walletaddress }}</p>
+          <!--<h4>Bitcoin (BTC): {{ bitcoin_external }}</h4>
+          <h4>Dogecoin (XDG): {{ dogecoin_external }}</h4>
+          <h4>Netcoin (NET): {{ netcoin_external }}</h4>-->
+        </div>
+        <div class="medium-9 columns end" id="edit-vitals">
+          <h2 class="profile-username">{{ username }}<br/><small><hr /><input type="text" id="full-name" value="{{ full_name if full_name != None }}"></input> <input type="text" id="location" value="{{ ' · '+location if location != None }}"></input></small></h2>
+          <p>crypto.cab member since {{ joined }} | last active on {{ active }}</p>
+          <p>Wallet: {{ walletaddress }}</p>
+          <!--<h4>Bitcoin (BTC): {{ bitcoin_external }}</h4>
+          <h4>Dogecoin (XDG): {{ dogecoin_external }}</h4>
+          <h4>Netcoin (NET): {{ netcoin_external }}</h4>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="row full-width">
+      <div class="large-3 columns">
+        &nbsp;
+      </div>
+      <div class="large-9 columns end">
+        {% if user_id|string() == session.user_id %}
+          <button class="tiny secondary size-12-font margin-top-15" id="edit-profile-button">Edit Profile</button>
+        {% else %}
+          <button class="tiny secondary size-12-font margin-top-15" id="add-friend-button">Add Friend</button>
+        {% endif %}
+        <div id="minor-notify"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block lowerbody %}
+  <div class="vertical-spacer-25"></div>
+  <div class="row full-width">
+    <div class="large-8 columns">
+      <form id="scribble-broadcast" method="POST" action='#'>
+        <input type="text" name="scribble_data" id="scribble_data" placeholder="Scribble something on {{ username }}'s profile!" />
+        <button class="tiny success size-12-font" id="scribble-button">scribble</button>
+      </form>
+      <div id="scribble-box">
+        <div id="scribble"></div>
+      </div>
+    </div>
+    <div class="large-4 columns end centered" id="awards-box">
+      <h3>{{ username }}'s Awards</h3>
+      <hr />
+      <ul id="awards-list"></ul>
+    </div>
+  </div>
+{% endblock %}

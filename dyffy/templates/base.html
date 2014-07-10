@@ -1,0 +1,99 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<head>
+    <title>dyffy{% block extra_title %}{% endblock %}</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}?2" />
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700|Comfortaa:300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
+
+    <script src="{{ url_for('static', filename='js/vendor/modernizr.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
+    <script>
+        {% if g.user.is_authenticated() %}
+        window.login = true;
+        window.user_id = {{ session.user_id }};
+        window.username = "{{ session.user }}";
+        window.wallet = {address: '{{ session.address }}', secret: '{{ session.secret }}'};
+        window.admin = '{{ session.admin }}' === 'True';
+        {% else %}
+        window.login = false;
+        window.admin = false;
+        window.wallet = {};
+        {% endif %}
+    </script>
+
+    {% block extra_head %}
+    {% endblock %}
+    
+    <body>
+
+        {% include "includes/navbar.html" %}
+
+        <section id="main" class="container">
+
+            {% block main %}{% endblock %}
+
+        </section>
+
+        <footer>
+
+            <div class="row container clearfix">
+
+                <div class="small-12 columns">
+                    <h4>dyffy
+                        <div class="social">
+                            <a href="https://twitter.com/"><i class="fa fa-twitter"></i></a><a href="https://www.facebook.com/dyffyteam"<i class="fa fa-facebook"></i></a>
+                        </div>
+                    </h4>
+                </div>
+                <div class="medium-7 columns">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae rutrum risus, vitae posuere turpis. Proin posuere urna lectus, eu bibendum ante sagittis in. Maecenas ultricies purus et tempor tristique. Vestibulum id dui in dui egestas porta. Sed malesuada diam mattis mi mattis, at ullamcorper ante consectetur.</p>
+                    <p>&copy; Copyright 2014 <a href="{{ url_for('home') }}">dyffy</a>.</p>
+                </div>
+                <div class="medium-5 columns">
+                    <div class="nav">
+                        <a href="/" class="home">home</a><a href="/">faq</a><a href="/">privacy</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <div id="login-modal" class="reveal-modal small" data-reveal>
+            {% include "includes/login_form.html" %}
+        </div>
+        <div id="register-modal" class="reveal-modal small" data-reveal>
+            {% include "includes/registration_form.html" %}
+        </div>
+
+        {% block extra_modal %}{% endblock %}
+
+        <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/jquery-migrate-1.2.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/jquery.lightbox_me.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/jquery.countdown.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/underscore-min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/dyffy.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/foundation/foundation.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/foundation/foundation.dropdown.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/foundation/foundation.topbar.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/foundation/foundation.tab.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/foundation/foundation.reveal.js') }}"></script>
+
+        <script>
+            $(document).foundation();
+            document.documentElement.setAttribute('data-useragent', navigator.userAgent);
+        </script>
+
+        <!-- TEMP HACK TO MAKE USER WALLET ADDRESS AVAILABLE TO ALL PAGES -->
+        <script id="wallet-address" type="text">{{ session.address }}</script>
+
+    </body>
+</html>

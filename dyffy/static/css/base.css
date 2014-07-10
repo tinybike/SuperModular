@@ -1,0 +1,154 @@
+/* dyyfy base styles */
+
+body {
+	background-color: #f8f8f8;
+	font-family: Lato;
+	font-weight: 300;
+}
+h1, h2, h3, h4 {
+	font-family: "Comfortaa";
+}
+.page {
+	margin-top: 30px;
+}
+.container {
+	max-width: 900px;
+	margin: 0px auto;
+}
+
+/* topnav */
+.top-bar .name h1 {
+	font-size: 1.3rem;
+	letter-spacing: .2rem;
+}
+
+/* sidebar */
+.sidebar .panel {
+	padding: 10px;
+}
+.sidebar h4.panel-legend {
+	color: #999;
+	font-size: 1.2rem;
+	margin: 0px 0px 0px 0px;
+	position: relative;
+	top: 7px;
+}
+.sidebar .wallet ul {
+	margin: 0px;
+	list-style: none;
+	font-size: 0.75rem;
+}
+.sidebar #friends ul {
+	margin: 0px;
+	list-style: none;
+	font-size: 0.9rem;
+}
+
+/* play */
+.play .time-remaining {
+	width: 284px;
+	margin: 31px auto 40px auto;
+	font-size: 4rem;
+	height: 90px;
+}
+
+/* splash page */
+.splash {
+	max-width: 800px;
+	text-align: center;
+	font-size: 1.4rem;
+	color: #777;
+	margin: 00px auto 10px auto;
+}
+.splash h1 {
+	font-size: 5rem;
+	color: #555;
+}
+.splash h1 .fa-arrow-up {
+	color: green;
+	font-size: 4rem;
+	margin-right: 10px;
+}
+.splash h1 .fa-arrow-down {
+	color: red;
+	font-size: 4rem;
+	margin-left: 10px;
+}
+
+/* home */
+.home h3 {
+	font-size: 1.3rem;
+	color: #555;
+	border-bottom: 1px solid #999;
+}
+
+/* chat-box */
+.chat-box {
+	padding: 0px;
+	margin-bottom: 0px;
+	min-height: 200px;
+	background-color: #fff;
+}
+#chat-box ul {
+	margin: 0px;
+	list-style: none;
+	font-size: 0.8rem;
+}
+#chat-box ul li b {
+	padding-right: 5px;
+}
+#chat-box ul li i {
+	display: none;
+}
+#broadcast input {
+	box-shadow: none;
+	border-top: none;
+	border-right: none;
+}
+
+/* reg and login modals and pages */
+.registration .panel,
+.login .panel {
+	width: 400px;
+	margin: 80px auto;
+	padding: 35px;
+}
+.registration .button,
+.login .button,
+.reveal-modal .button:last-child {
+	margin-bottom: 0px;
+}
+
+
+
+
+/* footer */
+footer {
+	color: #999;
+	margin-bottom: 10px;
+}
+footer h4 {
+	font-size: 1.2rem;
+	font-family: "Comfortaa";
+	color: #777;
+}
+footer .social {
+	float: right;
+}
+footer .social a {
+	margin-left: 0.7rem;
+}
+footer a {
+	color: #999;
+}
+footer p {
+	font-size: 0.8rem;
+	margin-bottom: 0.5rem;
+}
+footer .nav {
+	float: right;
+	text-transform: uppercase;
+}
+footer .nav a {
+	margin-left: 1rem;
+}

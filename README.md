@@ -1,11 +1,8 @@
-## dyf.fm
-
-More pump, less dump!  Or, was it the other way around...?
+## dyffy
 
 ### Requirements
 
-- Python 2.7 
-- PostgreSQL
+- Python 2.7
 
 ### Installation
 
@@ -19,18 +16,10 @@ More pump, less dump!  Or, was it the other way around...?
     
     $ source venv/bin/activate
     
-    $ apt-get install libxml2-dev libxslt1-dev
-    
     $ pip install -r requirements.txt
     
     $ mv dyffm/config_local_sample.py dyffm/config_local.py (edit with real values) 
     
-    $ ./manage.py clonedb
+    $ ./manage.py initdb
     
     $ ./manage.py runserver
-
-### Unit tests
-
-We love tests.  Our motto is, "Test the living shit out of everything!"
-
-    $ nosetests

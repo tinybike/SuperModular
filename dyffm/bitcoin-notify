@@ -1,4 +1,0 @@
-#!/bin/bash
-F=/home/deploy/deploy/cryptocab/dyffy/bitcoin.log
-D=`date +"%Y%m%d%H%M%S"`
-echo ${D} - ${1} >> ${F}

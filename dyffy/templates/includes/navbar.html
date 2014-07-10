@@ -1,0 +1,39 @@
+
+   <nav class="top-bar" data-topbar>
+
+      <div class="container">
+
+         <ul class="title-area">
+            <li class="name">
+               <h1><a href="{{ url_for('home') }}" id="title-text">dyffy</a></h1>
+            </li>
+            <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
+         </ul>
+
+         <div class="top-bar-section">
+
+            <ul class="right">
+               {% if g.user.is_authenticated() %}
+               <li><a href="{{ url_for('home') }}">Home</a></li>
+               <li><a href="{{ url_for('play') }}">Play</a></li>
+               <li class="has-dropdown">
+                  <a href="{{ url_for('profile', username=session.user) }}">{{ g.user.username }}</a>
+                  <ul class="dropdown">
+                     <li>
+                        <a href="{{ url_for('profile', username=session.user) }}">Profile</a>
+                     </li>
+                     <li class="divider"></li>
+                     <li>
+                        <a href="{{ url_for('logout') }}">Sign out</a>
+                     </li>
+                  </ul>
+               </li>
+               {% else %}
+               <li><a href="{{ url_for('login') }}" data-reveal-id="login-modal">Sign in</a></li>
+               <li><a href="{{ url_for('register') }}" data-reveal-id="register-modal">Sign up</a></li>
+               {% endif %}
+            </ul>
+
+         </div>
+      </div>
+   </nav>

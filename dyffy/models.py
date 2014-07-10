@@ -1,0 +1,113 @@
+import datetime
+
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.security import UserMixin, RoleMixin
+
+from dyffy import app
+
+db = SQLAlchemy(app)
+
+
+# many-to-many tables
+roles = db.Table('roles',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+)
+teams = db.Table('teams',
+    db.Column('team_id', db.Integer, db.ForeignKey('team.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+class User(db.Model, UserMixin):
+
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(50))
+	email = db.Column(db.String(100))
+	password = db.Column(db.String(50))
+	active = db.Column(db.Boolean)
+	address = db.Column(db.String(100))
+	city = db.Column(db.String(50))
+	state = db.Column(db.String(50))
+	zipcode = db.Column(db.String(20))
+	avatar = db.Column(db.String(100))
+
+	created = db.Column(db.DateTime, default=datetime.datetime.now)
+	last_login = db.Column(db.DateTime, default=datetime.datetime.now)
+
+	wallet = db.relationship('Wallet', backref='user', uselist=False)
+	transactions = db.relationship('Transaction', backref='user')
+	teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))
+	roles = db.relationship('Role', secondary=roles, backref=db.backref('users', lazy='dynamic'))
+
+	def request_friend(self, friend_id):
+
+		if User.query.get(friend_id):
+
+			friend = Friend(user_id=self.id, friend_id=friend_id)
+			db.session.commit()
+
+			return True
+
+		else:
+
+			return False
+
+	def get_friends(self):
+
+		return self.friends
+
+
+class Role(db.Model, RoleMixin):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
+
+class Friend(db.Model):
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    status = db.Column(db.Boolean, default=False)
+
+    user = db.relationship('User', foreign_keys='Friend.user_id')
+    friend = db.relationship('User', foreign_keys='Friend.friend_id')
+
+    def accept(self):
+
+    	self.status = True
+    	db.session.commit()
+
+
+class Wallet(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	dyf_address = db.Column(db.String(50))
+	dyf_balance = db.Column(db.Float)
+	btc_address = db.Column(db.String(50))
+	btc_balance = db.Column(db.Float)
+
+
+class Transaction(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	amount = db.Column(db.Float)
+	currency = db.Column(db.Float)
+	date = db.Column(db.DateTime)
+
+
+class Team(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(100))
+
+
+class Chat(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	author = db.Column(db.String(50))   # user.username
+	comment = db.Column(db.Text)
+	timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
+

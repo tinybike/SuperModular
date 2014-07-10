@@ -1,0 +1,7 @@
+<form action="/register" method="POST" id="registration-form" class="clearfix">
+  <input type="text" id="username" name="username" class="radius" placeholder="Username" value="{{ request.form.username }}" required autofocus />
+  <input type="password" id="password" name="password" class="radius" placeholder="Password" value="{{ request.form.password }}" required />
+  <input type="password" class="radius" placeholder="Verify password" data-equalto="password" required />
+  <input type="email" id="email" name="email" class="radius" placeholder="Email" value="{{ request.form.username }}" required />
+  <button type="submit" class="button small right radius" id="register">Register</button>
+</form>

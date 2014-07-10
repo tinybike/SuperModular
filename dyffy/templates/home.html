@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block main %}
+{% if g.user.is_authenticated() %}
+<div class="home page row ">
+
+  <div class="medium-7 columns">
+
+    <h3>recent games</h3>
+
+  </div>
+  
+  <div class="medium-4 columns">
+    {% include "includes/sidebar.html" %}
+  </div>
+
+</div>
+
+{% else %}
+
+<div class="splash">
+      <img src="{{ url_for('static', filename='img/dyffy_splash_logo.gif') }}">
+      <!--<h1><i class="fa fa-arrow-up"></i><span>dyffy</span><i class="fa fa-arrow-down"></i></h1>
+      <div class="about">Phasellus nulla velit, laoreet eget adipiscing vitae, euismod non nisl.</div>-->
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block lightbox %}
+  {% if registration_ok is defined %}
+    {% if registration_ok %}
+      {% include "registered-lightbox.html" %}
+    {% endif %}
+  {% endif %}
+{% endblock %}

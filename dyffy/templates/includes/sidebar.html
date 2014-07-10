@@ -1,0 +1,36 @@
+<section class="sidebar">
+
+  <h4 class="panel-legend">wallet</h4>
+  <div class="wallet panel">
+    <ul>
+       <li>{{ g.user.wallet.dfy_address }}</li>
+    </ul>
+  </div>
+
+  <h4 class="panel-legend">friends</h4>
+  <div id="friends" class="panel">
+    <ul>
+    </ul>
+  </div>
+
+  <h4 class="panel-legend">chat</h4>
+  <div class="chat-box panel">
+
+    <div id="chat-box">
+      <ul>
+        <li>welcome to dyffy!</li>
+      </ul>
+    </div>
+  </div>
+  <form id="broadcast" method="POST" action='#'>
+    <div class="row collapse clearfix">
+      <div class="small-10 columns">
+        <input type="text" name="broadcast_data" id="broadcast_data" placeholder="speak your mind">
+      </div>
+      <div class="small-2 columns">
+        <button type="submit" class="button postfix right">send</a>
+      </div>
+    </div>
+  </form>
+
+</section>
