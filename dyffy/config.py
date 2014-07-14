@@ -14,13 +14,15 @@ SECURITY_LOGIN_URL = '/foo1'    #
 SECURITY_LOGOUT_URL = '/foo2'   # pushing flask-sec's packaged views out of way for now
 SECURITY_REGISTER_URL = '/foo3' #
 
+# BTC setup
+BITCOIND_HOST = os.environ.get('BITCOIND_HOST')
+BITCOIND_USERNAME = os.environ.get('BITCOIND_USERNAME')
+BITCOIND_PASSWORD = os.environ.get('BITCOIND_PASSWORD')
+
 TESTING = False
 
 # threshold for betting markets to close unchanged/neutral
 NEUTRAL_THRESHOLD = 1e-07
-
-# tables storing users' bets for the current round
-BET_TABLES = ('altcoin_bets', 'altcoin_vs_bets')
 
 # user uploaded media
 UPLOAD_FOLDER = './uploads'

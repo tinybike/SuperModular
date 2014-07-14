@@ -7,6 +7,7 @@ from dyffy import app
 
 db = SQLAlchemy(app)
 
+EightDecimalPoints = db.Numeric(precision=23, scale=8, asdecimal=True)
 
 # many-to-many tables
 roles = db.Table('roles',
@@ -84,16 +85,16 @@ class Wallet(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	dyf_address = db.Column(db.String(50))
-	dyf_balance = db.Column(db.Float)
+	dyf_balance = db.Column(EightDecimalPoints)
 	btc_address = db.Column(db.String(50))
-	btc_balance = db.Column(db.Float)
+	btc_balance = db.Column(EightDecimalPoints)
 
 
 class Transaction(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	amount = db.Column(db.Float)
+	amount = db.Column()
 	currency = db.Column(db.Float)
 	date = db.Column(db.DateTime)
 
@@ -111,3 +112,26 @@ class Chat(db.Model):
 	comment = db.Column(db.Text)
 	timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
 
+
+class Bet(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    red = db.Column(db.String(100), nullable=False)
+    blue = db.Column(db.String(100), nullable=False)
+    amount = db.Column(EightDecimalPoints, nullable=False)
+    currency = db.Column(db.String(10), nullable=False)
+    target = db.Column(db.String(10), nullable=False)
+    time_of_bet = db.Column(db.DateTime, nullable=False, default=db.func.transaction_timestamp())
+
+
+class BetHistory(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    red = db.Column(db.String(100), nullable=False)
+    blue = db.Column(db.String(100), nullable=False)
+    amount = db.Column(EightDecimalPoints, nullable=False)
+    currency = db.Column(db.String(10), nullable=False)
+    target = db.Column(db.String(10), nullable=False)
+    time_of_bet = db.Column(db.DateTime, nullable=False, default=db.func.transaction_timestamp())
