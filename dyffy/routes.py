@@ -9,6 +9,7 @@ from dyffy import app
 
 from flask import session, request, escape, url_for, redirect, render_template, g
 from flask.ext.security import current_user, login_required, SQLAlchemyUserDatastore, Security
+from flask.ext.security.signals import user_registered
 from flask.ext.security.utils import login_user, logout_user, get_hmac
 from werkzeug import secure_filename
 
@@ -50,6 +51,9 @@ def register():
 
         user = user_datastore.create_user(username=username, email=email, password=get_hmac(password))
         db.session.commit()
+
+        # create wallet
+        user.create_wallet()
 
         login_user(user)
 

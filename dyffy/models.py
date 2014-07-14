@@ -2,6 +2,7 @@ import datetime
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import UserMixin, RoleMixin
+from flask.ext.security.signals import user_registered	
 
 from dyffy import app
 
@@ -57,6 +58,14 @@ class User(db.Model, UserMixin):
 
 		return self.friends
 
+	def create_wallet(self, initial_dyf=100):
+
+		new_wallet = Wallet(user_id=self.id)
+		new_wallet.dyf_balance = initial_dyf
+
+		db.session.add(new_wallet)
+		db.session.commit()
+
 
 class Role(db.Model, RoleMixin):
 
@@ -84,7 +93,6 @@ class Wallet(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	dyf_address = db.Column(db.String(50))
 	dyf_balance = db.Column(EightDecimalPoints)
 	btc_address = db.Column(db.String(50))
 	btc_balance = db.Column(EightDecimalPoints)
@@ -94,7 +102,7 @@ class Transaction(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	amount = db.Column()
+	amount = db.Column(EightDecimalPoints)
 	currency = db.Column(db.Float)
 	date = db.Column(db.DateTime)
 
