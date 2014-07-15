@@ -3,13 +3,25 @@
   <h4 class="panel-legend">wallet</h4>
   <div class="wallet panel">
     <ul>
-       <li>{{ g.user.wallet.dfy_address }}</li>
+       <li><b>DYF:</b> {{ g.user.wallet.dyf_balance }}</li>
     </ul>
   </div>
 
   <h4 class="panel-legend">friends</h4>
   <div id="friends" class="panel">
     <ul>
+      {% for u in g.friends %}
+        <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <h4 class="panel-legend">others</h4>
+  <div id="others" class="panel">
+    <ul>
+      {% for u in g.others %}
+        <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span class="friendable" data-user-id="{{ u.id }}">{{ u.username }}</span></li>
+      {% endfor %}
     </ul>
   </div>
 

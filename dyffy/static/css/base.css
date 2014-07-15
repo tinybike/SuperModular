@@ -119,8 +119,32 @@ h1, h2, h3, h4 {
 	margin-bottom: 0px;
 }
 
+#others ul {
+	list-style: none;
+	margin: 0px;
+}
+#others img {
+	width: 25px;
+	height: 25px;
+	margin-right: 8px;
+}
+#others i {
+	margin-right: 8px;
+}
+.friendable {
+	position: relative;
+}
+.friendable .add-friend {
+	display: none;
+	position: absolute;
+	top: 4px;
+	right: -25px;
 
-
+}
+.friendable:hover .add-friend {
+	display: inline-block;
+	cursor: pointer;
+}
 
 /* footer */
 footer {

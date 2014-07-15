@@ -36,7 +36,7 @@
     	// wallet balances
         var self = this;
         socket.on('wallet-balance', function (message) {
-            var balance = mesage.dyf + " DYF";
+            var balance = message.dyf + " DYF";
             self.dyf_balance = balance;
             $('#display-dyff-balance').empty().html(balance).show();
         });
@@ -238,6 +238,19 @@
             .intake()
             .exhaust()
             .tuneup(repeat);
+
+        $('.friendable').each(function(i , e) {
+
+        	var a = $('<i/>').addClass('fa fa-plus-square-o add-friend');
+        	$(e).append(a);
+        	$(e).on('click', function(event) {
+        		var user_id = $(event.target).attr('data-user-id');
+        		socket.emit('friend-request', {'user_id': user_id});
+
+        		
+        	})
+
+        })
 
     });
 

@@ -1,5 +1,3 @@
 SECRET_KEY = 'UNIQUE SECRET KEY' 
-
 SECURITY_PASSWORD_SALT = 'saltydog'
-
 SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'

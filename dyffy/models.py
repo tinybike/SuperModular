@@ -20,6 +20,18 @@ teams = db.Table('teams',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+class Friend(db.Model):
+
+    user1_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    status = db.Column(db.Boolean, default=False)
+
+    def accept(self):
+
+    	self.status = True
+    	db.session.commit()
+
+
 class User(db.Model, UserMixin):
 
 	id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +58,8 @@ class User(db.Model, UserMixin):
 		if User.query.get(friend_id):
 
 			friend = Friend(user_id=self.id, friend_id=friend_id)
+
+			db.session.add(friend)
 			db.session.commit()
 
 			return True
@@ -56,7 +70,20 @@ class User(db.Model, UserMixin):
 
 	def get_friends(self):
 
-		return self.friends
+		friends = []
+		for f in Friend.query.filter((Friend.user1_id == self.id) | (Friend.user2_id == self.id)).all():
+			if f.user2_id == self.id:
+				friends.append(User.query.get(f.user1_id))
+			else:
+				friends.append(User.query.get(f.user2_id))
+
+		return friends
+
+
+	def get_others(self, flat=False, limit=50):
+
+		return User.query.filter(User.id != self.id).order_by(User.last_login).limit(limit).all()
+
 
 	def create_wallet(self, initial_dyf=100):
 
@@ -73,20 +100,6 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
-
-class Friend(db.Model):
-
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    status = db.Column(db.Boolean, default=False)
-
-    user = db.relationship('User', foreign_keys='Friend.user_id')
-    friend = db.relationship('User', foreign_keys='Friend.friend_id')
-
-    def accept(self):
-
-    	self.status = True
-    	db.session.commit()
 
 
 class Wallet(db.Model):

@@ -25,8 +25,8 @@ def get_wallet_balance():
         if wallet:
 
             emit('wallet-balance', {
-                'dyf': wallet.dyf_balance,
-                'btc': wallet.btc_balance
+                'dyf': str(wallet.dyf_balance),
+                'btc': str(wallet.btc_balance)
             })
 
 
@@ -47,7 +47,7 @@ def friend_accept(message):
 
     if current_user.is_authenticated():
 
-        friend = Friend.query.filter_by(user_id=current_user.id, friend_id=message['user_id']).first()
+        friend = Friend.query.filter_by(user_id=message['user_id'], friend_id=current_user.id).first()
 
         if friend:
 
