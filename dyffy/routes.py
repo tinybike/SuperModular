@@ -28,8 +28,8 @@ def before_request():
     g.user = current_user
 
     if current_user.is_authenticated():
-        g.friends = current_user.get_friends()
-        g.others = current_user.get_others()
+        g.friends, g.others = current_user.get_friends()
+        
 
 @app.route('/')
 def home():

@@ -31,6 +31,11 @@ class Friend(db.Model):
     	self.status = True
     	db.session.commit()
 
+    def reject(self):
+
+    	db.session.delete(self)
+    	db.session.commit()
+
 
 class User(db.Model, UserMixin):
 
@@ -57,7 +62,7 @@ class User(db.Model, UserMixin):
 
 		if User.query.get(friend_id):
 
-			friend = Friend(user_id=self.id, friend_id=friend_id)
+			friend = Friend(user1_id=self.id, user2_id=friend_id)
 
 			db.session.add(friend)
 			db.session.commit()
@@ -68,21 +73,32 @@ class User(db.Model, UserMixin):
 
 			return False
 
-	def get_friends(self):
 
-		friends = []
-		for f in Friend.query.filter((Friend.user1_id == self.id) | (Friend.user2_id == self.id)).all():
-			if f.user2_id == self.id:
-				friends.append(User.query.get(f.user1_id))
+	def get_friends(self, others_limit=50):
+
+		friends = {'pending': [], 'accept':[], 'friends':[]}
+		ids = [self.id]  # hack for others query
+
+		for u in Friend.query.filter((Friend.user1_id == self.id) | (Friend.user2_id == self.id)).all():
+
+			if u.user1_id == self.id:
+				f = User.query.get(u.user2_id)
+				state = 'pending' if not u.status else 'friends'
+				ids.append(u.user2_id)
 			else:
-				friends.append(User.query.get(f.user2_id))
+				f = User.query.get(u.user1_id)
+				state = 'accept' if not u.status else 'friends'
+				ids.append(u.user1_id)
 
-		return friends
+			friends[state].append({'username': f.username, 'id': f.id, 'avatar': f.avatar})
 
+		# get others
+		others = []
+		for o in User.query.filter(~User.id.in_(ids)).order_by(User.last_login).limit(others_limit).all():
 
-	def get_others(self, flat=False, limit=50):
+			others.append({'username': o.username, 'id': o.id, 'avatar': o.avatar})
 
-		return User.query.filter(User.id != self.id).order_by(User.last_login).limit(limit).all()
+		return friends, others
 
 
 	def create_wallet(self, initial_dyf=100):

@@ -8,16 +8,22 @@
   </div>
 
   <h4 class="panel-legend">friends</h4>
-  <div id="friends" class="panel">
+  <div id="friends" class="user-list panel">
     <ul>
-      {% for u in g.friends %}
+      {% for u in g.friends.accept %}
+        <li class="request">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status"><a class="accept" data-user-id="{{ u.id }}"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="{{ u.id }}"><i class="fa fa-minus-square"></i></a></div></li>
+      {% endfor %}
+      {% for u in g.friends.pending %}
+        <li class="pending">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status">pending</div></li>
+      {% endfor %}
+      {% for u in g.friends.friends %}
         <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span></li>
       {% endfor %}
     </ul>
   </div>
 
   <h4 class="panel-legend">others</h4>
-  <div id="others" class="panel">
+  <div id="others" class="user-list panel">
     <ul>
       {% for u in g.others %}
         <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span class="friendable" data-user-id="{{ u.id }}">{{ u.username }}</span></li>

@@ -35,7 +35,10 @@ def friend_request(message):
 
     if current_user.is_authenticated() and current_user.request_friend(message['user_id']):
 
-        emit('friend-requested', {})
+        friends, others = current_user.get_friends()
+        response = {'friends': friends, 'others': others}
+
+        emit('friend-list', response)
 
     else:
 
@@ -47,19 +50,45 @@ def friend_accept(message):
 
     if current_user.is_authenticated():
 
-        friend = Friend.query.filter_by(user_id=message['user_id'], friend_id=current_user.id).first()
+        friend = Friend.query.filter_by(user1_id=message['user_id'], user2_id=current_user.id).first()
 
         if friend:
 
-            friend.acccept()
+            friend.accept()
 
-            response = {}
+            friends, others = current_user.get_friends()
+            response = {'friends': friends, 'others': others}
 
         else:
 
             response = {'error': 'unknown friend request'}
+
+        app.logger.info('accepting %s', message['user_id'])
         
-        emit('friend-accepted', response)
+        emit('friend-list', response)
+
+
+@socketio.on('friend-reject', namespace='/socket.io/')
+def friend_reject(message):
+
+    if current_user.is_authenticated():
+
+        friend = Friend.query.filter_by(user1_id=message['user_id'], user2_id=current_user.id).first()
+
+        if friend:
+
+            friend.reject()
+
+            friends, others = current_user.get_friends()
+            response = {'friends': friends, 'others': others}
+
+        else:
+
+            response = {'error': 'unknown friend request'}
+
+        app.logger.info('rejecting %s', message['user_id'])
+        
+        emit('friend-list', response)
 
 
 @socketio.on('get-friends', namespace='/socket.io/')
@@ -67,38 +96,9 @@ def get_friends():
 
     if current_user.is_authenticated():
 
-        friends = []
+        friends, others = current_user.get_friends()
 
-        for f in current_user.get_friends():
-
-            friends.append({
-                'id': f.id,
-                'username': f.username,
-                'avatar': f.avatar,
-                'last_on': u.last_login
-            })
-
-        emit('friend-list', {'friends': friends})
-
-
-@socketio.on('user-list', namespace='/socket.io/')
-def user_list():
-
-    if current_user.is_authenticated():
-
-        users = []
-
-        for u in User.query.all():
-
-            users.append({
-                'id': u.id,
-                'username': u.username,
-                'avatar': u.avatar,
-                'last_on': u.last_login
-            })
-
-
-        emit('user-list', {'user_list': users})
+        emit('friend-list', {'friends': friends, 'others': others})
 
 
 @socketio.on('get-chat', namespace='/socket.io/')

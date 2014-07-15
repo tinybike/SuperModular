@@ -36,13 +36,9 @@ h1, h2, h3, h4 {
 .sidebar .wallet ul {
 	margin: 0px;
 	list-style: none;
-	font-size: 0.75rem;
+	font-size: 1rem;
 }
-.sidebar #friends ul {
-	margin: 0px;
-	list-style: none;
-	font-size: 0.9rem;
-}
+
 
 /* play */
 .play .time-remaining {
@@ -119,16 +115,41 @@ h1, h2, h3, h4 {
 	margin-bottom: 0px;
 }
 
-#others ul {
+.user-list ul {
 	list-style: none;
 	margin: 0px;
+	width: 100%;
 }
-#others img {
-	width: 25px;
-	height: 25px;
-	margin-right: 8px;
+.user-list li.pending {
+	color: #777;
+	font-style: italic;
 }
-#others i {
+.user-list li .status {
+	float: right;
+	font-size: 0.8rem;
+	position: relative;
+	top: 3px;
+}
+.user-list li.request {
+	color: #777;
+}
+.user-list li.request .status {
+	font-size: 1.2rem;
+	top: -2px;
+}
+.user-list li.request a.accept {
+	color: green;
+	margin-right: 5px;
+	display: inline-block;
+}
+.user-list li.request a.reject {
+	color: red;
+}
+
+.user-list img,
+.user-list .fa-user {
+	width: 20px;
+	height: 20px;
 	margin-right: 8px;
 }
 .friendable {
