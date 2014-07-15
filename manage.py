@@ -31,6 +31,7 @@ class InitDB(Command):
     "initialize database"
     
     def run(self):
+        db.drop_all()
         db.create_all()
 
 manager.add_command("initdb", InitDB())
