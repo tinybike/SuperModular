@@ -17,12 +17,12 @@
                <li><a href="{{ url_for('home') }}">Home</a></li>
                <li><a href="{{ url_for('play') }}">Play</a></li>
                <li class="has-dropdown">
-                  <a href="{{ url_for('profile', username=session.user) }}">
+                  <a href="{{ url_for('profile', user_id=g.user.id) }}">
                      {% if g.user.avatar %}<img class="avatar" src="{{ g.user.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}
                      {% if g.user.username %}{{ g.user.username }}{% elif g.user.name %}{{ g.user.name }}{% else %}Unknown{% endif %}</a>
                   <ul class="dropdown">
                      <li>
-                        <a href="{{ url_for('profile', username=session.user) }}">Profile</a>
+                        <a href="{{ url_for('profile', user_id=g.user.id) }}">Profile</a>
                      </li>
                      <li class="divider"></li>
                      <li>

@@ -171,8 +171,8 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route("/profile/<username>")
-@login_required
-def profile(username):
+@app.route("/profile/<user_id>")
+def profile(user_id):
 
     return render_template('profile.html')
+
