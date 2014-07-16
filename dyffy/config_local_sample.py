@@ -1,3 +1,2 @@
 SECRET_KEY = 'UNIQUE SECRET KEY' 
-
 SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'

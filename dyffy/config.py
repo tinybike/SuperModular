@@ -22,15 +22,9 @@ NEUTRAL_THRESHOLD = 1e-07
 UPLOAD_FOLDER = './uploads'
 MAX_CONTENT_LENGTH =  10000000
 
-# flask-social
-SOCIAL_FACEBOOK = {
-    'consumer_key': os.environ.get('FACEBOOK_APP_ID', ''),
-    'consumer_secret': os.environ.get('FACEBOOK_APP_SECRET', '')
-}
-SOCIAL_GOOGLE = {
-    'consumer_key': os.environ.get('GOOGLE_APP_ID', ''),
-    'consumer_secret': os.environ.get('GOOGLE_SECRET', '')
-}
+# social logins
+FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID', '')
+FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
 
 # use local config for development environments
 if DEPLOY_ENV != 'prod':
