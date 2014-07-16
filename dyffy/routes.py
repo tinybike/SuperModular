@@ -8,18 +8,19 @@ from decimal import *
 from dyffy import app
 
 from flask import session, request, escape, url_for, redirect, render_template, g
-from flask.ext.security import current_user, login_required, SQLAlchemyUserDatastore, Security
-from flask.ext.security.signals import user_registered
-from flask.ext.security.utils import login_user, logout_user, get_hmac
+from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug import secure_filename
 
-from dyffy.models import db, User, Role
+from dyffy.models import db, User
 
+# flask-login
+login_manager = LoginManager(app)
+login_manager.session_protection = "basic"
+login_manager.login_view = "/login"
 
-# setup flask-security
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
-
+@login_manager.user_loader
+def user_loader(user_id):
+    return User.query.get(user_id)
 
 # pre-request setup
 @app.before_request
@@ -29,7 +30,7 @@ def before_request():
 
     if current_user.is_authenticated():
         g.friends, g.others = current_user.get_friends()
-        
+
 
 @app.route('/')
 def home():
@@ -52,11 +53,7 @@ def register():
         email = request.form['email']
         password = request.form['password']
 
-        user = user_datastore.create_user(username=username, email=email, password=get_hmac(password))
-        db.session.commit()
-
-        # create wallet
-        user.create_wallet()
+        user = User.create_user(username=username, password=password, email=email)
 
         login_user(user)
 
@@ -76,7 +73,7 @@ def login():
         password = request.form['password']
         remember = True if request.form.get('remember') else False
 
-        user = user_datastore.find_user(username=username, password=get_hmac(password))
+        user = User.get_user(username=username, password=password)
 
         if user:
 

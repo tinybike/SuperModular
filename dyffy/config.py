@@ -8,12 +8,6 @@ DEBUG = True if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true' else Fal
 # setup postgres from os env
 SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
-# flask-security
-SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
-SECURITY_LOGIN_URL = '/foo1'    #    
-SECURITY_LOGOUT_URL = '/foo2'   # pushing flask-sec's packaged views out of way for now
-SECURITY_REGISTER_URL = '/foo3' #
-
 # BTC setup
 BITCOIND_HOST = os.environ.get('BITCOIND_HOST')
 BITCOIND_USERNAME = os.environ.get('BITCOIND_USERNAME')
@@ -27,6 +21,16 @@ NEUTRAL_THRESHOLD = 1e-07
 # user uploaded media
 UPLOAD_FOLDER = './uploads'
 MAX_CONTENT_LENGTH =  10000000
+
+# flask-social
+SOCIAL_FACEBOOK = {
+    'consumer_key': os.environ.get('FACEBOOK_APP_ID', ''),
+    'consumer_secret': os.environ.get('FACEBOOK_APP_SECRET', '')
+}
+SOCIAL_GOOGLE = {
+    'consumer_key': os.environ.get('GOOGLE_APP_ID', ''),
+    'consumer_secret': os.environ.get('GOOGLE_SECRET', '')
+}
 
 # use local config for development environments
 if DEPLOY_ENV != 'prod':

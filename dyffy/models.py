@@ -1,8 +1,8 @@
 import datetime
 
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import UserMixin, RoleMixin
-from flask.ext.security.signals import user_registered	
+from flask.ext.login import UserMixin
 
 from dyffy import app
 
@@ -11,10 +11,6 @@ db = SQLAlchemy(app)
 EightDecimalPoints = db.Numeric(precision=23, scale=8, asdecimal=True)
 
 # many-to-many tables
-roles = db.Table('roles',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
-)
 teams = db.Table('teams',
     db.Column('team_id', db.Integer, db.ForeignKey('team.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
@@ -56,7 +52,32 @@ class User(db.Model, UserMixin):
 	wallet = db.relationship('Wallet', backref='user', uselist=False)
 	transactions = db.relationship('Transaction', backref='user')
 	teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))
-	roles = db.relationship('Role', secondary=roles, backref=db.backref('users', lazy='dynamic'))
+
+	@classmethod
+	def create_user(cls, username=None, password=None, **kwargs):
+
+		if username and password:
+
+			user = cls(username=username, password=generate_password_hash(password), **kwargs)
+			db.session.add(user)
+			db.session.commit()
+
+			user.create_wallet()
+
+			return user
+
+
+	@classmethod
+	def get_user(cls, username=None, password=None):
+
+		if username and password:
+
+			user = cls.query.filter_by(username=username).first()
+
+			if check_password_hash(user.password, password):
+			
+				return user
+
 
 	def request_friend(self, friend_id):
 
@@ -108,14 +129,6 @@ class User(db.Model, UserMixin):
 
 		db.session.add(new_wallet)
 		db.session.commit()
-
-
-class Role(db.Model, RoleMixin):
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
-
 
 
 class Wallet(db.Model):
