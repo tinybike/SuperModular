@@ -40,11 +40,15 @@ class User(db.Model, UserMixin):
 	email = db.Column(db.String(100))
 	password = db.Column(db.String(100))
 	active = db.Column(db.Boolean)
+	name = db.Column(db.String(50))
 	address = db.Column(db.String(100))
 	city = db.Column(db.String(50))
 	state = db.Column(db.String(50))
 	zipcode = db.Column(db.String(20))
 	avatar = db.Column(db.String(100))
+
+	facebook_id = db.Column(db.Integer)
+	facebook_access_token = db.Column(db.String(255))
 
 	created = db.Column(db.DateTime, default=datetime.datetime.now)
 	last_login = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -54,11 +58,21 @@ class User(db.Model, UserMixin):
 	teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))
 
 	@classmethod
-	def create_user(cls, username=None, password=None, **kwargs):
+	def create_user(cls, password=None, facebook_id=None, **kwargs):
 
-		if username and password:
+		if password:
 
-			user = cls(username=username, password=generate_password_hash(password), **kwargs)
+			user = cls(password=generate_password_hash(password), **kwargs)
+			db.session.add(user)
+			db.session.commit()
+
+			user.create_wallet()
+
+			return user
+
+		elif facebook_id:
+
+			user = cls(facebook_id=facebook_id, **kwargs)
 			db.session.add(user)
 			db.session.commit()
 
@@ -68,15 +82,23 @@ class User(db.Model, UserMixin):
 
 
 	@classmethod
-	def get_user(cls, username=None, password=None):
+	def get_user(cls, password=None, facebook_id=None, **kwargs):
 
-		if username and password:
+		if password:
 
 			user = cls.query.filter_by(username=username).first()
 
 			if check_password_hash(user.password, password):
 			
 				return user
+
+		elif facebook_id:
+
+			user = cls.query.filter_by(facebook_id=facebook_id).first()
+
+			if user:
+				return user
+
 
 
 	def request_friend(self, friend_id):

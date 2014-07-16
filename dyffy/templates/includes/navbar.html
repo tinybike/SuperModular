@@ -17,7 +17,8 @@
                <li><a href="{{ url_for('home') }}">Home</a></li>
                <li><a href="{{ url_for('play') }}">Play</a></li>
                <li class="has-dropdown">
-                  <a href="{{ url_for('profile', username=session.user) }}">{{ g.user.username }}</a>
+                  <a href="{{ url_for('profile', username=session.user) }}">
+                     {% if g.user.username %}{{ g.user.username }}{% elif g.user.name %}{{ g.user.name }}{% else %}Unknown{% endif %}</a>
                   <ul class="dropdown">
                      <li>
                         <a href="{{ url_for('profile', username=session.user) }}">Profile</a>

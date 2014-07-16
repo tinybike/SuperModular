@@ -34,6 +34,55 @@ facebook = oauth.remote_app(
 )
 
 
+@app.route('/login/facebook')
+def facebook_login():
+
+    callback = url_for(
+        'facebook_authorized',
+        next = request.args.get('next') or request.referrer or None, _external=True
+    )
+
+    return facebook.authorize(callback=callback)
+
+
+@app.route('/login/facebook/authorized')
+@facebook.authorized_handler
+def facebook_authorized(response):
+
+    if response is None:
+
+        return 'Access denied: reason=%s error=%s' % (
+            request.args['error_reason'],
+            request.args['error_description']
+        )
+
+    if isinstance(response, OAuthException):
+
+        return 'Access denied: %s' % response.message
+
+    app.logger.info(response['access_token'])
+
+    session['oauth_token'] = (response['access_token'], '')
+    me = facebook.get('/me')
+
+    user = User.get_user(facebook_id=me.data['id'])
+
+    # create new user if one doesn't exist
+    if not user:
+        user = User.create_user(facebook_id=me.data['id'], facebook_access_token=response['access_token'], name=me.data['name'])
+
+    login_user(user)
+
+    return redirect(url_for('home'))
+
+
+@facebook.tokengetter
+def get_facebook_oauth_token():
+    return session.get('oauth_token')
+
+
+
+
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
