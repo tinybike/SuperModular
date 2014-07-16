@@ -31,7 +31,8 @@ class InitDB(Command):
     "initialize database"
     
     def run(self):
-        db.reflect()
+        #db.reflect()
+        db.session.commit()
         db.drop_all()
         db.create_all()
 
@@ -45,6 +46,7 @@ def make_shell_context():
     in the context of the app
     """
     return dict(app=app, db=db)
+
 
 if __name__ == "__main__":
     manager.run()
