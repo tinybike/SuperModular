@@ -31,6 +31,7 @@ class InitDB(Command):
     "initialize database"
     
     def run(self):
+        db.reflect()
         db.drop_all()
         db.create_all()
 
