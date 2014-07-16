@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
 	zipcode = db.Column(db.String(20))
 	avatar = db.Column(db.String(100))
 
-	facebook_id = db.Column(db.Integer)
+	facebook_id = db.Column(db.BigInteger)
 	facebook_access_token = db.Column(db.String(255))
 
 	created = db.Column(db.DateTime, default=datetime.datetime.now)

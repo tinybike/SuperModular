@@ -1,6 +1,5 @@
 SECRET_KEY = 'UNIQUE SECRET KEY' 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'
-SQLALCHEMY_DATABASE_URI = 'postgres://xrpxilheqamten:hX_y1QIn4BVJBcf1d0a_KZvlta@ec2-54-197-227-238.compute-1.amazonaws.com:5432/df18a5bueqbonk'
 
 FACEBOOK_APP_ID = '807459499283753'
 FACEBOOK_APP_SECRET = '3a82b21a79bf8fcea78d29c00555513e'
