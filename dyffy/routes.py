@@ -174,5 +174,9 @@ def logout():
 @app.route("/profile/<user_id>")
 def profile(user_id):
 
-    return render_template('profile.html')
+    user = User.query.get(user_id)
 
+    if user:
+        return render_template('profile.html', user=user)
+    else:
+        return redirect(url_for('home'))

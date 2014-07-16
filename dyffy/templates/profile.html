@@ -11,17 +11,17 @@
 
         <div class="medium-3 columns">
           <div id="avatar">
-            {% if g.user.avatar %}
-              <img src="{{ g.user.avatar }}" alt="avatar" />
+            {% if user.avatar %}
+              <img src="{{ user.avatar }}" alt="avatar" />
             {% else %}
-              <img src="{{ profile_pic }}" alt="avatar" />
+              <img src="{{ default_avatar }}" alt="avatar" />
             {% endif %}
           </div>
         </div>
         <div class="medium-9 columns end" id="vitals">
-          <h2 class="profile-username">{{ g.user.username }}</h2>
-          <p>dyffy member since {{ g.user.created }}</p>
-          <p>last on {{ g.user.last_login }}</p>
+          <h2 class="profile-username">{{ user.username }}</h2>
+          <p>dyffy member since {{ user.created }}</p>
+          <p>last on {{ user.last_login }}</p>
         </div>
       </div>
     </div>
@@ -31,7 +31,7 @@
         &nbsp;
       </div>
       <div class="large-9 columns end">
-        {% if g.user.is_authenticated() and user_id == g.user.id %}
+        {% if g.user.is_authenticated() and user.id == g.user.id %}
           <button class="tiny secondary size-12-font margin-top-15" id="edit-profile-button">Edit Profile</button>
         {% else %}
           <button class="tiny secondary size-12-font margin-top-15" id="add-friend-button">Add Friend</button>
