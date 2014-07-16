@@ -73,6 +73,9 @@ class User(db.Model, UserMixin):
 		elif facebook_id:
 
 			user = cls(facebook_id=facebook_id, **kwargs)
+			if not kwargs.get('username') and kwargs.get('name'):
+				user.username = kwargs['name'].split(' ')[0]
+
 			db.session.add(user)
 			db.session.commit()
 
