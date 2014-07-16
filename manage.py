@@ -31,7 +31,7 @@ class InitDB(Command):
     "initialize database"
     
     def run(self):
-        if db.engine.name == 'postgres':
+        if db.engine.name == 'postgresql':
             db.engine.execute("drop schema if exists public cascade")
             db.engine.execute("create schema public")
         else:
