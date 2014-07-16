@@ -14,6 +14,8 @@ from werkzeug import secure_filename
 
 from dyffy.models import db, User
 
+import requests
+
 # flask-login
 login_manager = LoginManager(app)
 login_manager.session_protection = "basic"
@@ -65,11 +67,14 @@ def facebook_authorized(response):
     session['oauth_token'] = (response['access_token'], '')
     me = facebook.get('/me')
 
+    app.logger.info(me.data)
+
     user = User.get_user(facebook_id=me.data['id'])
 
     # create new user if one doesn't exist
     if not user:
-        user = User.create_user(facebook_id=me.data['id'], facebook_access_token=response['access_token'], name=me.data['name'])
+        avatar = 'http://graph.facebook.com/{0}/picture'.format(me.data['id'])
+        user = User.create_user(facebook_id=me.data['id'], facebook_access_token=response['access_token'], name=me.data['name'], avatar=avatar)
 
     login_user(user)
 

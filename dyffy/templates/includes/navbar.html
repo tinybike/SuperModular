@@ -18,6 +18,7 @@
                <li><a href="{{ url_for('play') }}">Play</a></li>
                <li class="has-dropdown">
                   <a href="{{ url_for('profile', username=session.user) }}">
+                     {% if g.user.avatar %}<img class="avatar" src="{{ g.user.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}
                      {% if g.user.username %}{{ g.user.username }}{% elif g.user.name %}{{ g.user.name }}{% else %}Unknown{% endif %}</a>
                   <ul class="dropdown">
                      <li>

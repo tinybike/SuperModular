@@ -87,9 +87,9 @@ class User(db.Model, UserMixin):
 	@classmethod
 	def get_user(cls, password=None, facebook_id=None, **kwargs):
 
-		if password:
+		if password and kwargs.get('username'):
 
-			user = cls.query.filter_by(username=username).first()
+			user = cls.query.filter_by(username=kwargs['username']).first()
 
 			if check_password_hash(user.password, password):
 			

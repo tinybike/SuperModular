@@ -21,6 +21,14 @@ h1, h2, h3, h4 {
 	font-size: 1.3rem;
 	letter-spacing: .2rem;
 }
+.top-bar .avatar {
+	width: 29px;
+	margin-right: 5px;
+}
+.top-bar .fa-user {
+	font-size: 1.0rem;
+	margin-right: 5px;
+}
 
 /* sidebar */
 .sidebar .panel {
