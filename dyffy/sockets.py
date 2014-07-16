@@ -8,8 +8,7 @@ from dyffy import app
 from dyffy import socketio
 
 from flask import session, escape, g
-from flask.ext.security import current_user
-from flask.ext.security.utils import login_user, logout_user
+from flask.ext.login import current_user, login_user, logout_user
 from flask.ext.socketio import emit
 
 from dyffy.models import db, User, Friend, Chat

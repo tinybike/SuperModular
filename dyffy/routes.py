@@ -8,6 +8,7 @@ from decimal import *
 from dyffy import app
 
 from flask import session, request, escape, url_for, redirect, render_template, g
+from flask_oauthlib.client import OAuth, OAuthException
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug import secure_filename
 
@@ -18,9 +19,25 @@ login_manager = LoginManager(app)
 login_manager.session_protection = "basic"
 login_manager.login_view = "/login"
 
+
+oauth = OAuth(app)
+
+facebook = oauth.remote_app(
+    'facebook',
+    consumer_key=app.config['FACEBOOK_APP_ID'],
+    consumer_secret=app.config['FACEBOOK_APP_SECRET'],
+    request_token_params={'scope': 'email'},
+    base_url='https://graph.facebook.com',
+    request_token_url=None,
+    access_token_url='/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth'
+)
+
+
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
+
 
 # pre-request setup
 @app.before_request
