@@ -1,0 +1,46 @@
+# Bitcoin bridge installation (tested on Ubuntu 12.04 LTS)
+
+# Install bitcoind (other coins need to be compiled from source)
+sudo apt-get install python-software-properties -y
+sudo add-apt-repository ppa:bitcoin/bitcoin -y
+sudo apt-get update
+sudo apt-get install bitcoind -y
+
+# Set environment variable
+echo "export BRIDGE=/home/jack/src/babbage/bridge" >> ~/.profile
+
+# Restart, or just for the current shell you can use
+source ~/.profile
+
+# Set up bitcoin config file
+mkdir ~/.bitcoin/
+touch ~/.bitcoin/bitcoin.conf
+echo listen=1 >> ~/.bitcoin/bitcoin.conf
+echo server=1 >> ~/.bitcoin/bitcoin.conf
+echo daemon=1 >> ~/.bitcoin/bitcoin.conf
+echo gen=0 >> ~/.bitcoin/bitcoin.conf
+echo testnet=0 >> ~/.bitcoin/bitcoin.conf
+echo rpcallowip=127.0.0.1 >> ~/.bitcoin/bitcoin.conf
+echo rpcuser=ZTwijIDcaRCY >> ~/.bitcoin/bitcoin.conf
+echo rpcpassword=qBrbIrxGlUhh797oIOwKRN7XN7lavBAq >> ~/.bitcoin/bitcoin.conf
+echo walletnotify=$BRIDGE/bitcoin-notify %s >> ~/.bitcoin/bitcoin.conf
+
+chmod a+x $BRIDGE/bitcoin-notify
+
+# To log to a postgresql database instead or in addition to the logfile
+# First, set environment variables
+echo "export PGUSER=babbage" >> ~/.profile
+echo "export PGDATABASE=babbage" >> ~/.profile
+echo "export PGHOST=localhost" >> ~/.profile
+echo "export PGPORT=5432" >> ~/.profile
+echo "export PGPASSWORD=Coff33_cultur3" >> ~/.profile
+
+source ~/.profile
+
+# Set up pgpass file so transaction confirmations can be autologged to postgres
+touch ~/.pgpass
+echo $PGHOST:$PGPORT:$PGUSER:$PGDATABASE:$PGPASSWORD >> ~/.pgpass
+chmod 600 ~/.pgpass
+
+# Set up transaction table
+python $BRIDGE/models.py
