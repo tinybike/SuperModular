@@ -6,69 +6,53 @@
     <div class="medium-8 columns">
 
 			<div class="row">
+		      <div class="small-12 columns">
 
-	      <div class="small-12 columns">
+				<h2>Bet against other players, how many times this track will be played in 10 minutes</h2>
+				<p>Clock will start when enough players have guessed</p>
+			</div>
+		      <div class="small-12 columns">
 
-		      <div class="time-remaining">
-		        <div class="cell">
-		          <div class="digits"></div>
-		        </div>
+			        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/38422945&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
+
+			        <div id="current-bets">
+			        	{% if game.bets %}
+			        	<ul>
+			        	{% for bet in game.bets %}
+							<li><span class="friendable">{{ game.bet.user['username'] }}</span> <b>{{ game.bet.guess }}</b></li>
+			        	{% endfor %}
+			        	</ul>
+			        	{% endif %}
+			        </div>
+
+			        <form id="bet-left" method="POST" action="#">
+			          <div class="row collapse">
+			          	<div class="small-6 columns">
+			              <input type="text" class="large" id="increase-guess" placeholder="Your guess" />
+			            </div>
+			            <div class="small-6 columns">
+			               <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>
+			            </div>
+			          </div>
+			         
+
+			        </form>
+
 		      </div>
+		   </div>
 
-		    </div>
-	  	</div>
+		   	<div class="row">
 
-			<div class="row">
+		      <div class="small-12 columns">
 
-	      <div class="medium-6 columns">
+			      <div class="time-remaining">
+			        <div class="cell">
+			          <div class="digits"></div>
+			        </div>
+			      </div>
 
-	        <h4 class="selected-market-left">Dogecoin <span id="price-change-left"></span></h4>
-
-	        <div class="current-bets" id="current-bets-left"></div>
-
-	        <form id="bet-left" method="POST" action="#">
-	          <div class="row collapse">
-	            <div class="small-7 columns">
-	              <input type="text" id="bet-input-left" placeholder="Amount to bet" />
-	            </div>
-	            <div class="small-5 columns">
-	              <select id="bet-denomination-left" class="prefix">
-	                <option value="DYF">Dyffs (DYF)</option>
-	              </select>
-	            </div>
-	          </div>
-	          <button type="submit" class="button expand small radius bet-button">
-	              Bet on <span class="selected-market-left">Dogecoin</span>
-	          </button>
-
-	        </form>
-
-	      </div>
-
-	      <div class="medium-6 columns">
-
-	      	<h4 class="selected-market-right">Bitcoin <span id="price-change-right"></span></h4>
-
-	        <div class="current-bets" id="current-bets-right"></div>
-
-	        <form id="bet-right" method="POST" action="#">
-	        	<div class="row collapse">
-	            <div class="small-7 columns">
-	              <input type="text" id="bet-input-right" placeholder="Amount to bet" />
-	            </div>
-	            <div class="small-5 columns end">
-	              <select id="bet-denomination-right" class="prefix">
-	                <option value="DYF">Dyffs (DYF)</option>
-	              </select>
-	            </div>
-	          </div>
-            <button type="submit" class="button expand small radius bet-button">
-              Bet on <span class="selected-market-left">Bitcoin</span>
-            </button>
-	        </form>
-	      </div>
-
-    	</div>
+			    </div>
+		  	</div>
 
     </div>
 
@@ -76,4 +60,14 @@
 			{% include "includes/sidebar.html" %}
     </div>
   </div>
+  {% endblock %}
+
+  {% block extra_script %}
+  <script src="https://w.soundcloud.com/player/api.js" />
+  <script>
+	var iframeElement   = $('#track-1');
+	var iframeElementID = iframeElement.id;
+	var widget1         = SC.Widget(iframeElement);
+	var widget2         = SC.Widget(iframeElementID);
+  </script>
   {% endblock %}

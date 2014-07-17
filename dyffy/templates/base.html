@@ -92,8 +92,7 @@
             document.documentElement.setAttribute('data-useragent', navigator.userAgent);
         </script>
 
-        <!-- TEMP HACK TO MAKE USER WALLET ADDRESS AVAILABLE TO ALL PAGES -->
-        <script id="wallet-address" type="text">{{ session.address }}</script>
-
+        {% block extra_script %}
+        {% endblock %}
     </body>
 </html>
