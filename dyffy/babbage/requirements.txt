@@ -1,16 +1,6 @@
-psycopg2
-ujson==1.33
 requests
-pycrypto
-py-bcrypt
-hashlib
-Crypto
 nose
 sqlalchemy
 numpy
-matplotlib
 pandas
-scipy
 soundcloud
-bunch
-python-jsonrpc

@@ -1,5 +1,0 @@
-#!/bin/bash
-F=$BRIDGE/log/bitcoin.log
-D=`date +"%Y%m%d%H%M%S"`
-echo ${D} - ${1} >> ${F}
-psql -U$PGUSER -h$PGHOST -d$PGDATABASE -c "UPDATE transactions SET confirmations = confirmations + 1, last_confirmation = now() WHERE txhash = ${1}"
