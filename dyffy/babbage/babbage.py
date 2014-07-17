@@ -8,6 +8,7 @@ Usage:
         game.play(user_id="4", title="soundcloud", genre="punk")
 @author jack@tinybike.net
 """
+import datetime
 from fysom import Fysom
 from decimal import Decimal
 from utils import *
@@ -25,7 +26,7 @@ Game map:
      cashout--> [stats]                        -bet-|
 """
 
-class Babbage(object):
+class Jellybeans(object):
     
     def __init__(self, user_id):
         self.num_players = 1
@@ -70,26 +71,24 @@ class Babbage(object):
         if config.DEBUG:
             print self.players[-1], "enters", e.title
         self.title = e.title
-            
+
     def play(self, e):
         """Specify options and start the game"""
         if config.DEBUG:
             print e.user_id, "is now playing", e.title, "(" + e.options + ")"
-        
         data.update(e)
-        if e.title == "soundcloud":
-            res = (db.session.query(SoundCloudBattle)
-                     .filter(SoundCloudBattle.redgenre==e.genre,
-                             SoundCloudBattle.bluegenre==e.genre,
-                             SoundCloudBattle.started==None,
-                             SoundCloudBattle.finished==None)
-                     .limit(1)
-                     .all())
-            if res:
-                res[0].started = datetime.datetime.now()
-                db.session.commit()
-                if config.DEBUG:
-                    print "Playing:", res[0].redtrack, "vs", res[0].bluetrack, "-", res[0].duration/1000.0, "seconds to go"
+        res = (db.session.query(SoundCloudBattle)
+                 .filter(SoundCloudBattle.redgenre==e.genre,
+                         SoundCloudBattle.bluegenre==e.genre,
+                         SoundCloudBattle.started==None,
+                         SoundCloudBattle.finished==None)
+                 .limit(1)
+                 .all())
+        if res:
+            res[0].started = datetime.datetime.now()
+            db.session.commit()
+            if config.DEBUG:
+                print "Playing:", res[0].redtrack, "vs", res[0].bluetrack, "-", res[0].duration/1000.0, "seconds to go"
 
     def bet(self, e):
         """Record a bet in the bets table in the database"""
@@ -161,16 +160,16 @@ class Babbage(object):
 if __name__ == '__main__':
     config.DEBUG = True
     print sketch
-    b = Babbage("4")
-    b.game.enter(title="soundcloud")
-    b.game.play(options="punk")
-    b.game.bet(
+    jb = Jellybeans("4")
+    jb.game.enter()
+    jb.game.play(options="punk")
+    jb.game.bet(
         user_id="4",
         value="10",
         amount=Decimal("0.2"),
         currency="DYF"
     )
-    b.game.gameover()
-    b.game.cashout()
+    jb.game.gameover()
+    jb.game.cashout()
     db.session.close()
     print
