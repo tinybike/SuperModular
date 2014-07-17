@@ -1,0 +1,105 @@
+\documentclass[floatfix,reprint,nofootinbib,amsmath,amssymb,epsfig,pre,floats,letterpaper,groupedaffiliation]{revtex4-1}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{hyperref}
+\usepackage{dcolumn}
+\usepackage{bm}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+%\PassOptionsToPackage{caption=false}{subfig}
+%\usepackage{subfig}
+
+\begin{document}
+
+\title{Dyffy: Social Predictions/Contract-For-Difference Bet Structure}
+
+\author{Matthew Liston}
+\author{Jack Peterson}
+\affiliation{Dyffy, Inc.}
+
+\begin{abstract}
+Outline of the bet structure for Dyffy's social predictions market/contract-for-difference market.
+\end{abstract}
+
+\maketitle
+
+Dyffy's social predictions market will allow users to wager on the outcome of events.  The framework we outline here is purposely general, so that it can be tailored to specific {global} or {local} events. \emph{Global} refers to events that a typical person would be aware of, such as the outcome of the U.S.~presidential election.\footnote{Global bets may bring to mind the now-defunct service InTrade.  A notable difference between Dyffy's global wagers and InTrade's system is that Dyffy will not accept (fiat) money wagers.}  \emph{Local} refers to user-created propositions that are designed to be shared with other, nearby users via mobile app.  An example might be a user attending a soccer game who broadcasts a bet that there will be a goal in the next 10 minutes.
+
+Initially, we focus on global events; local events will grow rapidly in importance as we near a critical mass of users.
+
+\section*{Which change is bigger?}
+
+One simple implementation of our (global) betting scheme is for users to bet on the price changes of altcoins.  In this example, there are two altcoins, $a$ and $b$ (for example, $a$ might be Dogecoin and $b$ might be Litecoin).  Users place beta on which coin's price will change more rapidly over a pre-defined interval (or \emph{round}) $\left[t_0, t\right]$.  Since some coins have a larger absolute price than others, we deal instead with \emph{ratios} of prices.
+
+The \emph{change} $\Delta_{a}$ in coin $a$'s relative price over this interval is defined as
+\beq
+\Delta_{a} = \frac{v_{a}(t)}{v_{a}(t_0)},
+\eeq
+where $v_{a}(t)$ is the volume-weighted average price (VWAP) of coin $a$ at time $t$.
+
+\emph{TODO: determine if this should this be with respect to Bitcoin, or USD, or some other reference.  Bitcoin and altcoin volatilities will be correlated, so you're getting something subtly different if you use Bitcoin vs a fiat currency: with USD you're just comparing volatilities, but with Bitcoin you're measuring a mashup of coin volatility and the extent to which the coin has decoupled from Bitcoin.}
+
+Bets from users are collected in \emph{pools}, which we denote $\rho_a$ for coin $a$.  The pool represents the total amount of money that users have placed on that coin.  For simplicity, we assume that all bets are collected from users simultaneously at the start of the interval, $t_0$.  In reality, users may receive a discount for placing their bets early.  Once the interval is finished, $\Delta_a$ and $\Delta_b$ are compared to see which coin's price actually changed more.  If
+\beq
+\Delta_{a} > \Delta_{b},
+\eeq
+we say that coin $a$ `wins'.
+
+When the round ends, the losing coin $b$'s pool $\rho_b$ shrinks: some amount of the money placed in $\rho_b$ is paid out to the users who bet on coin $a$.  Appropriate payout values will likely need to be determined empirically.  Here, we propose a very simple rule: the total \emph{winnings} ($w$) received by coin $a$'s betters is proportional to coin $b$'s pool size, with proportionality factor equal to the percent difference $({\Delta_a - \Delta_b})/{\Delta_a}$ in the changes between coins $a$ and $b$:
+\beq
+w = \left(1-\frac{\Delta_b}{\Delta_a}\right) \rho_b(t_0).
+\eeq
+$\rho_b$ also decreases by an amount $w$, so the updated sizes of $\rho_a$ and $\rho_b$ at the end of the round (before payouts are made to the betters) are given by
+\beq
+\begin{bmatrix}
+\rho_a(t)\\
+\rho_b(t)
+\end{bmatrix} =
+\begin{bmatrix}
+1 & 1-\frac{\Delta_b}{\Delta_a} \\
+0 & \frac{\Delta_b}{\Delta_a}
+\end{bmatrix}
+\begin{bmatrix}
+\rho_a(t_0)\\
+\rho_b(t_0)
+\end{bmatrix}
+\eeq
+Or, stated in words: the new pool for the losing coin $b$ is the product of the starting pool size with the losing VWAP ratio divided by the winning VWAP ratio.
+
+In summary, at the end of the round:
+\begin{itemize}
+\item Bets placed on coin $a$ are returned in full to their betters.
+\item A proportion of bets placed on coin $b$ are returned to their betters, with the change ratio $\Delta_b/\Delta_a$ as the proportionality factor.
+\end{itemize}
+As expected, the amount of winnings awarded to each victorious better is higher the more people that have bet the other way: taking an unpopular, but ultimately correct, position reaps large rewards.  Note also that a correct prediction generates no winnings unless at least one person has taken the opposing side.
+
+In some cases, the round might be quite long.  To prevent betters from assuming unnecessary volatility risk, all bets are fully collateralized in the same currency.  Bitcoin is an obvious choice for a default reference currency to be used by the bet pools, due to its large volume and name recognition.  Another possibility is XRP, Ripple's internal currency.  If a user supplies a different currency, the system automatically exchanges for the pool currency, with the exchange rate determined at the start of the round $t_0$.
+
+\emph{TODO: work through corner/limiting cases and make sure there's nothing wrong with this setup.}
+
+\section*{Time weighted winnings}
+
+In the previous section we assumed that all bets were placed simultaneously at the beginning of the round.  In reality, it may make sense to provide an incentive to users to place their bets prior to the beginning of the round.  Instead of each user's \emph{share} ($s$) of the bet pool being equal to the amount bet ($b$), a time weighting function $f(t)$ can be used:
+\beq
+s = b \cdot f(t).
+\eeq
+A simple example might be a linear time weighting function
+\beq
+f(t) = 1-ct
+\eeq
+where $c$ is a constant between 0 and $1/2$.
+
+\emph{TODO: motivated examples -- why linear time weighting?  Should we use time weighting at all?}
+
+%\bibliographystyle{plain}
+%\bibliography{thesis}
+
+\end{document}
