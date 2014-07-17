@@ -5,7 +5,6 @@ Babbage database setup using SQLAlchemy
 """
 import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Numeric, DateTime, Boolean, Table, Text, Float
-from sqlalchemy.types import CHAR
 from sqlalchemy import create_engine, func, event, DDL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
@@ -81,15 +80,6 @@ class Team(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
 
-
-class Chat(Base):
-    """"""
-    __tablename__ = "chat"
-
-    id = Column(Integer, primary_key=True)
-    author = Column(String(50))   # users.username
-    comment = Column(Text)
-    timestamp = Column(DateTime, default=datetime.datetime.now)
 
 ###########
 # Betting #
@@ -177,39 +167,6 @@ class SoundCloudBattle(Base):
     created = Column(DateTime, default=func.transaction_timestamp())
     started = Column(DateTime)
     finished = Column(DateTime)
-
-
-################
-# Coin bridges #
-################
-
-class Bridge(Base):
-    """"""
-    __tablename__ = "bridge"
-
-    txid = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    txdate = Column(DateTime, default=func.transaction_timestamp())
-    amount = Column(EightDecimalPoints)
-    currency = Column(String(10), nullable=False)
-    address = Column(String(50))
-    inbound = Column(Boolean, nullable=False, default=True)
-    confirmations = Column(Integer, nullable=False, default=0)
-    confirmed = Column(Boolean, default=False)
-
-
-class Coin(Base):
-    """"""
-    __tablename__ = "coins"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    currency = Column(String(10), nullable=False)
-    confirmations = Column(Integer, nullable=False)
-    rpc_username = Column(String(50))
-    rpc_password = Column(String(250))
-    website = Column(Text)
-    description = Column(Text)
 
 
 ###################
