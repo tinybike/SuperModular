@@ -338,7 +338,6 @@ class SoundCloud(db.Model):
                 tracks = client.get("/tracks",
                                     genres=genre,
                                     types="recording,live,remix,original",
-                                    embeddable_by="all",
                                     sharing="public",
                                     limit=200)
             except Exception as exc:
@@ -349,10 +348,10 @@ class SoundCloud(db.Model):
             track_data = []
             for t in tracks:
                 try:
-                    if t.embeddable_by != "all":
+                    if t.embeddable_by != "all" or not t.streamable:
                         continue
                     row = [t.id, str(t.genre), t.user_id, t.duration,
-                           t.favoritings_count, t.playback_count]                    
+                           t.favoritings_count, t.playback_count]  
                 except Exception as exc: 
                     print exc
                     continue
