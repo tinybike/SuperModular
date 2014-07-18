@@ -349,8 +349,10 @@ class SoundCloud(db.Model):
             track_data = []
             for t in tracks:
                 try:
+                    if t.embeddable_by != "all":
+                        continue
                     row = [t.id, str(t.genre), t.user_id, t.duration,
-                           t.favoritings_count, t.playback_count]
+                           t.favoritings_count, t.playback_count]                    
                 except Exception as exc: 
                     print exc
                     continue
