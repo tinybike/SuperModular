@@ -192,48 +192,42 @@ class Bet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    red = db.Column(db.String(100), nullable=False)
-    blue = db.Column(db.String(100), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     amount = db.Column(EightDecimalPoints, nullable=False)
-    currency = db.Column(db.String(10), nullable=False)
-    target = db.Column(db.String(10), nullable=False)
+    guess = db.Column(db.String(100), nullable=False)
     time_of_bet = db.Column(db.DateTime, nullable=False, default=db.func.transaction_timestamp())
-
-
-class BetHistory(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    red = db.Column(db.String(100), nullable=False)
-    blue = db.Column(db.String(100), nullable=False)
-    amount = db.Column(EightDecimalPoints, nullable=False)
-    currency = db.Column(db.String(10), nullable=False)
-    target = db.Column(db.String(10), nullable=False)
-    time_of_bet = db.Column(db.DateTime, nullable=False, default=db.func.transaction_timestamp())
-
-
-
-class SoundCloud(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    soundcloud_id = db.Column(db.String(100), nullable=False)
-    genre = db.Column(db.String(25))
-    artist = db.Column(db.String(100))
-    duration = db.Column(db.Float, nullable=False)
-    favorites = db.Column(db.Integer, nullable=False)
-    playbacks = db.Column(db.Integer, nullable=False)
-    mojo = db.Column(db.Float, nullable=False)
-    updated = db.Column(db.DateTime, default=db.func.transaction_timestamp())
 
 
 class Game(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    soundcloud_id = db.Column(db.String(100))
-    genre = db.Column(db.String(25))
-    duration = db.Column(db.Float, nullable=False)
-    outcome = db.Column(db.String(10))
     created = db.Column(db.DateTime, default=db.func.transaction_timestamp())
     started = db.Column(db.DateTime)
     finished = db.Column(db.DateTime)
+    min_players = db.Column(db.Integer)
+    game_minutes = db.Column(db.Integer)
+
+	bets = db.relationship('Bet', backref='game')
+
+    players = db.Column(db.String(255))
+
+    soundcloud_id = db.Column(db.String(100))
+
+    def add_player(self, user_id):
+
+    	players = self.players.split(',')
+    	players.append(str(user_id))
+    	self.players = ','.join(players)
+
+    	db.session.commit()
+
+    def add_bet(self, user_id, guess, bet=10)
+
+    	bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
+
+    	db.session.add(bet)
+    	db.session.commit()
+
+
+
 
