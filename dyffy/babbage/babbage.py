@@ -31,6 +31,7 @@ class Jellybeans(object):
     def __init__(self, min_players=3, game_minutes=10):
         self.min_players = min_players
         self.game_minutes = game_minutes
+        self.game_id = None
         self.num_players = 0
         self.num_bets = 0
         self.players = []
@@ -89,7 +90,8 @@ class Jellybeans(object):
                  .all())
         if res:
             res[0].started = datetime.datetime.now()
-            self.timing_loop(self.game.gameover)
+            self.timer = self.timing_loop(self.game.gameover)
+            self.started = True
             db.session.commit()
             if config.DEBUG:
                 print "Playing:", res[0].soundcloud_id
@@ -112,14 +114,16 @@ class Jellybeans(object):
             if res:
                 res[0].amount += amount
             else:
-                db.session.add(Bet(user_id=e.user_id,
-                                   game="Jellybeans",
-                                   guess=e.guess,
-                                   amount=amount,
-                                   currency="DYF"))
+                new_bet = Bet(user_id=e.user_id,
+                              game_id=self.game_id,
+                              game="Jellybeans",
+                              guess=e.guess,
+                              amount=amount,
+                              currency="DYF")
+                db.session.add(new_bet)
             self.num_bets += 1
-            p = [player["user_id"] == e.user_id for player in self.players]
-            idx = p.index(True)
+            lookup = [player["user_id"] == e.user_id for player in self.players]
+            idx = lookup.index(True)
             self.players[idx]["guess"] = e.guess
             self.players[idx]["bet"] = e.amount
             self.players[idx]["currency"] = e.currency
@@ -128,27 +132,10 @@ class Jellybeans(object):
             db.session.rollback()
 
     def gameover(self, e):
-        """
-        It's game over, man.  Game over!
-        - If the result is neutral (~zero), return all bets
-        - If either side has no betters, return all bets
-        - Otherwise, decide winners/losers and determine payouts
-        """
-        # res.db.session.query(SoundCloudBattle)
-        # outcome = settle.event_outcome()
-
-        # if settle.neutral(price_change) or not settle.bets_exist(coin_data['coin_code']):
-        #     settle.return_bets(coin_code=coin_data['coin_code'])
-        
-        # else:
-        #     winning_direction = '+' if price_change > 0 else '-'
-        #     roster = settle.winners_losers(winning_direction, coin_data['coin_code'])
-        #     pools = settle.collect_pools(roster)
-        #     winnings, losses = settle.pool_disburse(roster, pools)
-        #     settle.store_round_results(winners, losers, winnings, losses)
-        
-        # settle.prepare_next_round(coin_data['price'], coin_data['coin_code'])
-        # settle.reset_bet_tables()
+        """It's game over, man.  Game over!"""
+        # db.session.query(Game)
+        self.timer.stop
+        self.started = False
 
     def changestate(self, e):
         timestamp = datetime.datetime.now()
@@ -170,8 +157,8 @@ class Jellybeans(object):
 
 
     def get_player(self, user_id):
-        p = [player["user_id"] == e.user_id for player in self.players]
-        return self.players[p.index(True)]
+        lookup = [player["user_id"] == e.user_id for player in self.players]
+        return self.players[lookup.index(True)]
 
     def get_players(self):
         return self.players

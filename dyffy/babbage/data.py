@@ -66,7 +66,7 @@ def update_soundcloud(e):
     # and insert these into the database
     for i in xrange(config.DATA["soundcloud"]["battle-choices"]):
         select = df.ix[random.sample(df.index[:config.DATA["soundcloud"]["top"]], 1)][:1]
-        jellybeans = Jellybeans(
+        jellybeans = Game(
             soundcloud_id=select.soundcloud_id.values[0],
             genre=e.genre,
             duration=e.duration
