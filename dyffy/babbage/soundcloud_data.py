@@ -43,8 +43,7 @@ def update_soundcloud(e):
     tracks = client.get("/tracks",
                         genres="",
                         types="recording,live,remix,original",
-                        # limit=config.DATA["soundcloud"]["downloads"])
-                        limit=1000)
+                        limit=200)
 
     # Extract the data into a dataframe
     track_data = [[t.id, t.genre, t.user_id, t.duration,
@@ -65,8 +64,8 @@ def update_soundcloud(e):
     
     # Select songs at random from the top 25 songs for the "battle",
     # and insert these into the database
-    for i in xrange(config.DATA["soundcloud"]["battle-choices"]):
-        select = df.ix[random.sample(df.index[:config.DATA["soundcloud"]["top"]], 1)][:1]
+    for i in xrange(10):
+        select = df.ix[random.sample(df.index[:25], 1)][:1]
         jellybeans = Game(
             soundcloud_id=select.soundcloud_id.values[0],
             genre=e.genre,
