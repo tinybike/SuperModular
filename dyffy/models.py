@@ -267,7 +267,9 @@ class Game(db.Model):
 
     def add_bet(self, user_id, guess, bet=10):
 
-<<<<<<< HEAD
+        user = User.query.get(user_id)
+        user.wallet.debit(bet)
+
         bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
 
         db.session.add(bet)
@@ -283,12 +285,6 @@ class Game(db.Model):
         else:
 
             return False
-=======
-        user = User.query.get(user_id)
-        user.wallet.debit(bet)
-
-    	bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
->>>>>>> 5e59b330a21ee2191e77f8b1a6bf2f094e6e2ef7
 
 
     def start():
