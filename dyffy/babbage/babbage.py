@@ -48,7 +48,6 @@ class Jellybeans(object):
 
 
 
-
     def bet(self, user_id, guess, bet=10):
 
         self.game.add_bet(user_id=user_id, guess=guess, bet=bet)

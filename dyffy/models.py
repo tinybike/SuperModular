@@ -4,6 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin
 
+from decimal import Decimal, ROUND_HALF_EVEN
+
 from dyffy import app
 
 db = SQLAlchemy(app)
@@ -164,6 +166,46 @@ class Wallet(db.Model):
     btc_address = db.Column(db.String(50))
     btc_balance = db.Column(EightDecimalPoints)
 
+    def balance(self, currency):
+        """Check the balance of a wallet"""
+        result = Wallet.query.filter(Wallet.user_id==user_id).one()
+        if result:
+            if currency == "DYF":
+                return result.dyf_balance, result
+            elif currency == "BTC":
+                return result.btc_balance, result
+        raise Exception("No %s wallet found for user %s." % (currency, user_id))
+
+    def debit(amount, currency="DYF", handle_commit=False):
+        """
+        Debit coins from a wallet.  handle_commit should be False if your
+        transaction includes a debit in combination with other actions.
+        """
+        debit_complete = False
+        if currency == "NXT":
+            precision = ".01"
+        elif currency == "XRP":
+            precision = ".000001"
+        else:
+            precision = ".00000001"
+        amount = Decimal(amount).quantize(Decimal(precision),
+                                          rounding=ROUND_HALF_EVEN)
+        balance, result = self.wallet_balance(currency)
+        if balance and amount <= balance:
+            new_balance = balance - amount
+            if currency == "DYF":
+                result.dyf_balance -= amount
+            elif currency == "BTC":
+                result.btc_balance -= amount
+            debit_complete = True
+            if handle_commit:
+                db.session.commit()
+        if debit_complete:
+            return new_balance
+        if handle_commit:
+            db.session.rollback()
+        return False
+
 
 class Transaction(db.Model):
 
@@ -225,6 +267,7 @@ class Game(db.Model):
 
     def add_bet(self, user_id, guess, bet=10):
 
+<<<<<<< HEAD
         bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
 
         db.session.add(bet)
@@ -240,6 +283,12 @@ class Game(db.Model):
         else:
 
             return False
+=======
+        user = User.query.get(user_id)
+        user.wallet.debit(bet)
+
+    	bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
+>>>>>>> 5e59b330a21ee2191e77f8b1a6bf2f094e6e2ef7
 
 
     def start():
