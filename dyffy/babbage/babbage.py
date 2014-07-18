@@ -8,6 +8,7 @@ Usage:
         game.play(user_id="4", title="soundcloud", genre="punk")
 @author jack@tinybike.net
 """
+import threading
 import datetime
 from fysom import Fysom
 from decimal import Decimal
@@ -88,6 +89,7 @@ class Jellybeans(object):
                  .all())
         if res:
             res[0].started = datetime.datetime.now()
+            self.timing_loop(self.game.gameover)
             db.session.commit()
             if config.DEBUG:
                 print "Playing:", res[0].soundcloud_id
@@ -157,15 +159,15 @@ class Jellybeans(object):
     
     def add_player(self, user_id):
         self.game.enter(user_id)
-        if self.num_bets >= self.min_players:
-            self.game.play(options=self.options,
-                           duration=self.game_minutes)
 
     def add_bet(self, user_id, guess, bet=10, currency="DYF"):
         self.game.bet(user_id=user_id,
                       guess=guess,
                       amount=bet,
                       currency=currency)
+        if self.num_bets >= self.min_players:
+            self.game.play(options=self.options, duration=self.game_minutes)
+
 
     def get_player(self, user_id):
         p = [player["user_id"] == e.user_id for player in self.players]
@@ -174,6 +176,19 @@ class Jellybeans(object):
     def get_players(self):
         return self.players
 
+    def time_remaining(self):
+        pass
+
+    def timing_loop(self, callback):
+        def wrapper():
+            self.timing_loop(callback)
+            callback()
+        delay = self.game_minutes * 60
+        timer = threading.Timer(delay, wrapper)
+        timer.start()
+        return timer
+
+
 if __name__ == '__main__':
     config.DEBUG = True
     print sketch
@@ -181,7 +196,5 @@ if __name__ == '__main__':
     jb.add_player("4")
     jb.add_player("3")
     jb.add_player("2")
-    jb.game.gameover()
-    jb.game.cashout()
     db.session.close()
     print
