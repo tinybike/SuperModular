@@ -61,7 +61,7 @@ class User(db.Model, UserMixin):
 
     wallet = db.relationship('Wallet', backref='user', uselist=False)
     bets = db.relationship('Bet', backref='user', uselist=False)
-    
+
     transactions = db.relationship('Transaction', backref='user')
     
     teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))
@@ -278,7 +278,7 @@ class Game(db.Model):
         else:
             return False
 
-    def start():
+    def start(self):
 
         self.started = datetime.datetime.now()
         db.session.commit()

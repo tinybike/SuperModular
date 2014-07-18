@@ -15,8 +15,7 @@ from dyffy.models import db, User, Friend, Chat
 from babbage import Jellybeans
 
 
-
-@socketio.on('get-wallet-balance', namespace='/socket.io/')
+@socketio.on('get-wallet', namespace='/socket.io/')
 def get_wallet_balance():
 
     if current_user.is_authenticated():
@@ -25,7 +24,7 @@ def get_wallet_balance():
 
         if wallet:
 
-            emit('wallet-balance', {
+            emit('balance', {
                 'dyf': str(wallet.dyf_balance),
                 'btc': str(wallet.btc_balance)
             })
@@ -102,8 +101,8 @@ def get_friends():
         emit('friend-list', {'friends': friends, 'others': others})
 
 
-@socketio.on('get-chat', namespace='/socket.io/')
-def get_chat():
+@socketio.on('get-chats', namespace='/socket.io/')
+def get_chats():
 
     if current_user.is_authenticated():
 
@@ -161,6 +160,11 @@ def bet(message):
             }, broadcast=True)
 
             emit('no-more-bets')
+
+            if jb.game.started:
+
+                 emit('start-game', {'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S")})
+
 
 
 @socketio.on('connect', namespace='/socket.io/')
