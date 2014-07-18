@@ -9,6 +9,7 @@ from decimal import Decimal, ROUND_HALF_EVEN
 import pandas as pd
 import soundcloud
 import time
+import threading
 
 from dyffy import app
 
@@ -262,6 +263,18 @@ class Game(db.Model):
     bets = db.relationship('Bet', backref='game')
     soundcloud_id = db.Column(db.String(100))
 
+    def __init__(self, min_players, game_minutes, soundcloud_id):
+
+        self.min_players = min_players
+        self.game_minutes = game_minutes
+        self.soundcloud_id = soundcloud_id
+
+        if self.started is not None:
+            app.logger.info(self.started)
+            self.countdown(self.finish, True)
+
+        self.timer = None
+
     def add_player(self, user):
 
         self.players.append(user)
@@ -289,8 +302,31 @@ class Game(db.Model):
 
     def start(self):
 
+        self.countdown(self.finish)
+
         self.started = datetime.datetime.now()
         db.session.commit()
+
+    def countdown(self, callback, already_started=False):
+        
+        def wrapper():
+            self.countdown(callback)
+            callback()
+        
+        if already_started:
+            seconds_remaining = self.started
+        else:
+            seconds_remaining = self.game_minutes * 60
+
+        self.timer = threading.Timer(seconds_remaining, wrapper)
+        self.timer.start()
+
+    def finish(self):
+
+        self.timer = None
+
+        print "Game over!"        
+
 
 
 class SoundCloud(db.Model):
@@ -324,7 +360,7 @@ class SoundCloud(db.Model):
         self.query.delete()
         db.session.commit()
 
-        for genre in ("", "rock"):#, "punk", "dubstep", "techno", "rap"):
+        for genre in ("rock", ):#, "punk", "dubstep", "techno", "rap"):
 
             # Create the SoundCloud API client
             client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
