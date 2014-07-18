@@ -32,9 +32,9 @@ class Jellybeans(object):
     
     def __init__(self, min_players=3, game_minutes=10, user_id=None):
 
-        self.game = Game.query.filter(db.table.column.ilike(str(user_id)).filter_by(finished=None).first()
+        self.game = Game.query.filter(db.table.column.ilike(str(user_id))).filter_by(finished=None).first()
 
-        if not game:
+        if not self.game:
 
             self.game = Game(min_players=min_players, game_minutes=game_minutes)
 

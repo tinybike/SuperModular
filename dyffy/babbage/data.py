@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 import soundcloud
-from models import SoundCloud, SoundCloudBattle
+from models import SoundCloud, Game
 import db
 import config
 
@@ -41,12 +41,13 @@ def update_soundcloud(e):
 
     # Get audio track list for selected genre from the SoundCloud API
     tracks = client.get("/tracks",
-                        genres=e.genre,
+                        genres="",
                         types="recording,live,remix,original",
-                        limit=config.DATA["soundcloud"]["downloads"])
+                        # limit=config.DATA["soundcloud"]["downloads"])
+                        limit=1000)
 
     # Extract the data into a dataframe
-    track_data = [[t.id, t.genre.lower(), t.user_id, t.duration,
+    track_data = [[t.id, t.genre, t.user_id, t.duration,
                    t.favoritings_count, t.playback_count] for t in tracks]
     df = pd.DataFrame(track_data,
                       columns=["soundcloud_id", "genre", "artist",
