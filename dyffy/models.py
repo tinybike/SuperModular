@@ -60,6 +60,8 @@ class User(db.Model, UserMixin):
     last_login = db.Column(db.DateTime, default=datetime.datetime.now)
 
     wallet = db.relationship('Wallet', backref='user', uselist=False)
+    bets = db.relationship('Bet', backref='user', uselist=False)
+    
     transactions = db.relationship('Transaction', backref='user')
     
     teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))

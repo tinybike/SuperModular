@@ -63,9 +63,22 @@ h1, h2, h3, h4 {
 	font-size: 1.5rem;
 	margin-bottom: 20px;
 }
+.play h4 {
+	font-size: 1.2rem;
+}
 .play #guess {
 	font-size: 1.25rem;
 	padding: 1.8rem 0 1.9rem 1rem;
+}
+.play #current-bets {
+	margin-top: 20px;
+}
+.play #current-bets table {
+	width: 100%;
+	font-size: 1.1rem;
+}
+.play #current-bets .bet-amount {
+	text-align: right;
 }
 
 /* splash page */

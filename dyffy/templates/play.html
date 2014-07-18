@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main %}
-  <div class="play page row">
+  <div class="play page row" data-game-id="{{ game.id }}">
 
     <div class="medium-8 columns">
 
@@ -15,18 +15,17 @@
 
 			        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/{{ game.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
 
-			        <div id="current-bets">
-			        	{% if game.bets %}
-			        	<ul>
+			        <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
+			        	<h4>Current Bets</h4>
+			        	<table>
 			        	{% for bet in game.bets %}
-							<li><span class="friendable">{{ bet.user_id }}</span> <b>{{ bet.guess }}</b></li>
+							<tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">{{ bet.guess }} more listens</td><td class="bet-amount">{{ bet.amount }} DYF</td></tr>
 			        	{% endfor %}
-			        	</ul>
-			        	{% endif %}
+			        	</table>
 			        </div>
 
 					{% if not game.has_bet(g.user.id) %}
-			        <form id="bet" method="POST" action="#">
+			        <form id="bet" class="bet" method="POST" action="#">
 			          <div class="row collapse">
 			          	<div class="small-6 columns">
 			          		<input type="hidden" id="game-id" value="1" />

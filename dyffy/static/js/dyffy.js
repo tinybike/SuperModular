@@ -33,14 +33,6 @@
     // incoming websocket signals
     Cab.prototype.intake = function () {
 
-    	// wallet balances
-        var self = this;
-        socket.on('wallet-balance', function (message) {
-            var balance = message.dyf + " DYF";
-            self.dyf_balance = balance;
-            $('#display-dyff-balance').empty().html(balance).show();
-        });
-
     	// friend lists
         var self = this;
         var request_template = _.template('<li class="request"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status"><a class="accept" data-user-id="<%= u.id %>"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="<%= u.id %>"><i class="fa fa-minus-square"></i></a></div></li>');
@@ -91,6 +83,29 @@
             })
         });
 
+        // add bet
+        socket.on('add-bet', function (message) {
+
+        	console.log(message);
+        	if (message.game_id == parseInt($('div[data-game-id]').attr('data-game-id'))) {
+        		console.log('adding bet');
+	        	var template = _.template('<tr><td><b class="friendable" data-user-id="<%= bet.user.id %>"><%= bet.user.username %></b></td><td class="bet-guess"><%= bet.guess %> more listens</td><td class="bet-amount"><%= bet.amount %> DYF</td></tr>');
+	        	$('#current-bets table').append(template({'bet': message.bet}));
+	        	$('#current-bets').css('display', 'block');
+	        }
+        });
+
+        // no more bets
+        socket.on('no-more-bets', function () {
+        	$('.bet').css('display', 'none');
+        });
+
+        // update balances
+        socket.on('balance', function (message) {
+            $.each(message, function(k, v) {
+            	$('#'+k+'-balance .amount').text(v);
+            })
+        });
 
         // process battle data
         socket.on('battle-data', function (res) {
@@ -185,8 +200,6 @@
         var guess = $(form).find('#guess').val();
         var game_id = $(form).find('#game-id').val();
         var amount = 10;
-
-        console.log(guess);
 
         if (!isNaN(guess)) {
 
