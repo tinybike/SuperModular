@@ -6,9 +6,18 @@ from flask.ext.login import UserMixin
 
 from decimal import Decimal, ROUND_HALF_EVEN
 
+import pandas as pd
+import soundcloud
+import time
+
 from dyffy import app
 
 db = SQLAlchemy(app)
+
+# pandas display options
+pd.set_option("display.max_rows", 25)
+pd.set_option("display.width", 1000)
+pd.options.display.mpl_style = "default"
 
 EightDecimalPoints = db.Numeric(precision=23, scale=8, asdecimal=True)
 
@@ -285,6 +294,110 @@ class Game(db.Model):
         self.started = datetime.datetime.now()
         db.session.commit()
 
+class SoundCloud(db.Model):
 
+    __tablename__ = "soundcloud"
 
+    id = db.Column(db.Integer, primary_key=True)
+    soundcloud_id = db.Column(db.Integer)
+    genre = db.Column(db.String(250))
+    artist = db.Column(db.String(250))
+    duration = db.Column(db.Float)
+    favorites = db.Column(db.Integer)
+    playbacks = db.Column(db.Integer)
+    mojo = db.Column(db.Float)
+    played = db.Column(db.Boolean)
+    updated = db.Column(db.DateTime, default=db.func.transaction_timestamp())
 
+    @classmethod
+    def update(self):
+        """Download data from the SoundCloud API"""
+        # Check if we have a recent song list (< 10 mins old)
+        res = (db.session.query(SoundCloud)
+                 .order_by(SoundCloud.updated.desc())
+                 .limit(1)
+                 .all())
+        if res:
+            time_elapsed = datetime.datetime.now() - res[0].updated
+            if time_elapsed.total_seconds() < 600:
+                print "SoundCloud data up-to-date."
+                return
+
+        self.query.delete()
+        db.session.commit()
+
+        for genre in ("", "rock"):#, "punk", "dubstep", "techno", "rap"):
+
+            # Create the SoundCloud API client
+            client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
+                                       client_secret=app.config["SOUNDCLOUD_SECRET"],
+                                       username=app.config["SOUNDCLOUD_USERNAME"],
+                                       password=app.config["SOUNDCLOUD_PASSWORD"])
+
+            # Get audio track list for selected genre from the SoundCloud API
+            try:
+                tracks = client.get("/tracks",
+                                    genres=genre,
+                                    types="recording,live,remix,original",
+                                    limit=200)
+            except Exception as exc:
+                print exc
+                continue
+
+            # Extract the data into a dataframe
+            track_data = []
+            for t in tracks:
+                try:
+                    row = [t.id, str(t.genre), t.user_id, t.duration,
+                           t.favoritings_count, t.playback_count]
+                except Exception as exc: 
+                    print exc
+                    continue
+                track_data.append(row)
+            df = pd.DataFrame(track_data,
+                              columns=["soundcloud_id", "genre", "artist",
+                                       "duration", "favorites", "playbacks"])
+            
+            # Calculate song's "mojo" (%) as a sum of normalized
+            # favorites and playbacks
+            df["updated"] = datetime.datetime.now()
+            df["mojo"] = 50*(df.favorites/float(max(df.favorites)) +
+                             df.playbacks/float(max(df.playbacks)))
+            df = df.sort("mojo", ascending=False)
+
+            # Insert the ranked tracks into the database
+            df.to_sql("soundcloud", db.engine, if_exists="append", index=False)
+            
+            # Pause so we don't spam the Soundcloud API
+            time.sleep(1)
+    
+    @classmethod
+    def get_random_track(self):
+        track = self.query.filter(self.played==None).order_by(self.mojo.desc()).first()
+        track.played = True
+        db.session.commit()
+        return {
+            "id": track.soundcloud_id,
+            "playbacks": track.playbacks,
+            "favorites": track.favorites,
+        }
+
+    @classmethod
+    def get_track(self, track_id):
+        track = self.query.filter(self.soundcloud_id==track_id).first()
+        try:
+            client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
+                                       client_secret=app.config["SOUNDCLOUD_SECRET"],
+                                       username=app.config["SOUNDCLOUD_USERNAME"],
+                                       password=app.config["SOUNDCLOUD_PASSWORD"])
+            updated_track = client.get("/tracks", ids=track_id, limit=1)[0]
+            track.favorites = updated_track.favoritings_count
+            track.playbacks = updated_track.playbacks_count
+            db.session.commit()
+        except Exception as exc:
+            print exc
+        return {
+            "id": track.soundcloud_id,
+            "playbacks": track.playbacks,
+            "favorites": track.favorites,
+        }

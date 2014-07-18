@@ -1,7 +1,6 @@
 requests
 nose
 sqlalchemy
-numpy
 pandas
 soundcloud
 cdecimal
