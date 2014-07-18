@@ -337,6 +337,8 @@ class SoundCloud(db.Model):
                 tracks = client.get("/tracks",
                                     genres=genre,
                                     types="recording,live,remix,original",
+                                    embeddable_by="all",
+                                    sharing="public",
                                     limit=200)
             except Exception as exc:
                 print exc
