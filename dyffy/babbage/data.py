@@ -15,20 +15,18 @@ np.set_printoptions(linewidth=500)
 
 def update(e):
     """Check whether our data is up-to-date"""
-    if e.title == "soundcloud":
-        # Check if we have a recent song list (< 10 mins old) for this genre
-        res = (db.session.query(SoundCloud)
-                 .filter(SoundCloud.genre==e.genre)
-                 .order_by(SoundCloud.updated.desc())
-                 .limit(1)
-                 .all())
-        if res:
-            time_elapsed = datetime.datetime.now() - res[0].updated
-            if time_elapsed.total_seconds() < 600:
-                if config.DEBUG:
-                    print "SoundCloud data up-to-date."
-                return
-        update_soundcloud(e)
+    # Check if we have a recent song list (< 10 mins old)
+    res = (db.session.query(SoundCloud)
+             .order_by(SoundCloud.updated.desc())
+             .limit(1)
+             .all())
+    if res:
+        time_elapsed = datetime.datetime.now() - res[0].updated
+        if time_elapsed.total_seconds() < 600:
+            if config.DEBUG:
+                print "SoundCloud data up-to-date."
+            return
+    update_soundcloud(e)
 
 def update_soundcloud(e):
     """Download data from the SoundCloud API"""
@@ -64,17 +62,14 @@ def update_soundcloud(e):
     # Insert the ranked tracks into the database
     df.to_sql("soundcloud", db.engine, if_exists="append", index=False)
     
-    # Select 2 songs at random from the top 25 songs for the "battle",
+    # Select songs at random from the top 25 songs for the "battle",
     # and insert these into the database
     for i in xrange(config.DATA["soundcloud"]["battle-choices"]):
-        select = df.ix[random.sample(df.index[:config.DATA["soundcloud"]["top"]], 2)]
-        red, blue = select[:1], select[1:2]
-        battle = SoundCloudBattle(
-            redtrack=red.soundcloud_id.values[0],
-            bluetrack=blue.soundcloud_id.values[0],
-            redgenre=e.genre,
-            bluegenre=e.genre,
-            duration=max(red.duration.values[0], blue.duration.values[0])
+        select = df.ix[random.sample(df.index[:config.DATA["soundcloud"]["top"]], 1)][:1]
+        jellybeans = Jellybeans(
+            soundcloud_id=select.soundcloud_id.values[0],
+            genre=e.genre,
+            duration=e.duration
         )
-        db.session.add(battle)
+        db.session.add(jellybeans)
     db.session.commit()

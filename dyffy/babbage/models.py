@@ -91,23 +91,12 @@ class BetHistory(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    red = Column(String(100), nullable=False)
-    blue = Column(String(100), nullable=False)
+    game = Column(String(100), nullable=False)
     amount = Column(EightDecimalPoints, nullable=False)
     currency = Column(String(10), nullable=False)
-    target = Column(String(10), nullable=False)
+    guess = Column(String(10), nullable=False)
     time_of_bet = Column(DateTime, nullable=False,
                          default=func.transaction_timestamp())
-
-    #----------------------------------------------------------------------
-    def __init__(self, user_id, red, blue, amount, currency, target):
-        """"""
-        self.user_id = user_id
-        self.red = red
-        self.blue = blue
-        self.amount = amount
-        self.currency = currency
-        self.target = target
 
 
 class Bet(Base):
@@ -116,23 +105,13 @@ class Bet(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    red = Column(String(100), nullable=False)
-    blue = Column(String(100), nullable=False)
+    game = Column(String(100), nullable=False)
     amount = Column(EightDecimalPoints, nullable=False)
     currency = Column(String(10), nullable=False)
-    target = Column(String(10), nullable=False)
+    guess = Column(String(10), nullable=False)
     time_of_bet = Column(DateTime, nullable=False,
                          default=func.transaction_timestamp())
 
-    #----------------------------------------------------------------------
-    def __init__(self, user_id, red, blue, amount, currency, target):
-        """"""
-        self.user_id = user_id
-        self.red = red
-        self.blue = blue
-        self.amount = amount
-        self.currency = currency
-        self.target = target
 
 ##############
 # SoundCloud #
@@ -153,17 +132,15 @@ class SoundCloud(Base):
     updated = Column(DateTime, default=func.transaction_timestamp())
 
 
-class SoundCloudBattle(Base):
+class Jellybeans(Base):
     """"""
-    __tablename__ = "soundcloudbattles"
+    __tablename__ = "jellybeans"
 
     id = Column(Integer, primary_key=True)
-    redtrack = Column(String(100))
-    bluetrack = Column(String(100))
-    redgenre = Column(String(25))
-    bluegenre = Column(String(25))
+    soundcloud_id = Column(String(100))
+    genre = Column(String(25))
     duration = Column(Float, nullable=False)
-    winner = Column(String(10))
+    outcome = Column(String(10))
     created = Column(DateTime, default=func.transaction_timestamp())
     started = Column(DateTime)
     finished = Column(DateTime)
