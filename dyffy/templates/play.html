@@ -1,73 +1,73 @@
 {% extends "base.html" %}
 
 {% block main %}
-  <div class="play page row" data-game-id="{{ game.id }}">
+<div class="play page row" data-game-id="{{ game.id }}">
 
     <div class="medium-8 columns">
 
-			<div class="row">
-		      <div class="small-12 columns">
+        <div class="row">
+    
+            {% if game.started %}
+            <script>
+                window.game_started = '{{ game.started }}';
+                window.game_duration = {{ game.game_minutes }};
+            </script>
+            {% endif %}
+            <div class="small-12 columns stats" {% if not game.started %}style="display: none;"{% endif %}>
+                <div class="time-remaining">
+                    <div class="cell">
+                        <div class="digits"></div>
+                    </div>
+                 </div>
+            </div>
 
-				<h2>Bet against other players, how many times this track will be played in 10 minutes</h2>
-				<p>Clock will start when enough players have guessed</p>
-			</div>
-		      <div class="small-12 columns">
+            <div class="small-12 columns rules" {% if game.started %}style="display: none;"{% endif %}>
+                <h2>Bet against other players, how many times this track will be played in {{ game.game_minutes }} minutes</h2>
+                <p>Clock will start when enough players have guessed</p>
+            </div>
 
-			        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ game.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
+            <div class="small-12 columns">
 
-			        <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
-			        	<h4>Current Bets</h4>
-			        	<table>
-			        	{% for bet in game.bets %}
-							<tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">{{ bet.guess }} more listens</td><td class="bet-amount">{{ bet.amount }} DYF</td></tr>
-			        	{% endfor %}
-			        	</table>
-			        </div>
+		        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ game.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
 
-					{% if not game.has_bet(g.user.id) %}
-			        <form id="bet" class="bet" method="POST" action="#">
-			          <div class="row collapse">
-			          	<div class="small-6 columns">
-			          		<input type="hidden" id="game-id" value="1" />
-			              <input type="text" class="large" id="guess" placeholder="Your guess" />
-			            </div>
-			            <div class="small-6 columns">
-			               <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>
-			            </div>
-			          </div>
-			        </form>
-			        {% endif %}
+                <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
+                    <h4>Current Bets</h4>
+                    <table>
+                    {% for bet in game.bets %}
+                        <tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">{{ bet.guess }} more listens</td><td class="bet-amount">{{ bet.amount }} DYF</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
 
-		      </div>
-		   </div>
-
-		   	<div class="row">
-
-		      <div class="small-12 columns">
-
-			      <div class="time-remaining">
-			        <div class="cell">
-			          <div class="digits"></div>
-			        </div>
-			      </div>
-
-			    </div>
-		  	</div>
-
+                {% if not game.has_bet(g.user.id) %}
+                <form id="bet" class="bet" method="POST" action="#">
+                    <div class="row collapse">
+                        <div class="small-6 columns">
+                            <input type="hidden" id="game-id" value="1" />
+                            <input type="text" class="large" id="guess" placeholder="Your guess" />
+                        </div>
+                        <div class="small-6 columns">
+                            <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
     <div class="medium-4 columns">
-			{% include "includes/sidebar.html" %}
+        {% include "includes/sidebar.html" %}
     </div>
-  </div>
-  {% endblock %}
+</div>
+{% endblock %}
 
-  {% block extra_script %}
-  <script src="https://w.soundcloud.com/player/api.js" />
-  <script>
-	var iframeElement   = $('#track-1');
-	var iframeElementID = iframeElement.id;
-	var widget1         = SC.Widget(iframeElement);
-	var widget2         = SC.Widget(iframeElementID);
-  </script>
-  {% endblock %}
+{% block extra_script %}
+<script src="https://w.soundcloud.com/player/api.js" />
+<script>
+    var iframeElement   = $('#track-1');
+    var iframeElementID = iframeElement.id;
+    var widget1         = SC.Widget(iframeElement);
+    var widget2         = SC.Widget(iframeElementID);
+</script>
+{% endblock %}
