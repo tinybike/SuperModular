@@ -146,6 +146,9 @@ def bet(message):
 
             jb.bet(current_user.id, message['guess'])
 
+        emit('balance', {'dyf': current_user.wallet.dyf_ballance})
+        emit('no-more-bets')
+        
 
 @socketio.on('connect', namespace='/socket.io/')
 def socket_connect():

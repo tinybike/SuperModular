@@ -17,6 +17,10 @@ teams = db.Table('teams',
     db.Column('team_id', db.Integer, db.ForeignKey('team.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
 )
+players = db.Table('players',
+    db.Column('game_id', db.Integer, db.ForeignKey('game.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+) 
 
 class Friend(db.Model):
 
@@ -57,7 +61,9 @@ class User(db.Model, UserMixin):
 
     wallet = db.relationship('Wallet', backref='user', uselist=False)
     transactions = db.relationship('Transaction', backref='user')
+    
     teams = db.relationship('Team', secondary=teams, backref=db.backref('users', lazy='dynamic'))
+    games = db.relationship('Game', secondary=players, backref=db.backref('players', lazy='dynamic'))
 
     @classmethod
     def create_user(cls, password=None, facebook_id=None, **kwargs):
@@ -243,17 +249,11 @@ class Game(db.Model):
     game_minutes = db.Column(db.Integer)
 
     bets = db.relationship('Bet', backref='game')
-    players = db.Column(db.String(255))
     soundcloud_id = db.Column(db.String(100))
 
-    def add_player(self, user_id):
+    def add_player(self, user):
 
-        if self.players:
-            players = self.players.split(',')
-        else:
-            players = []
-        players.append(str(user_id))
-        self.players = ','.join(players)
+        self.players.append(user)
 
         db.session.commit()
 
@@ -272,13 +272,9 @@ class Game(db.Model):
     def has_bet(self, user_id):
 
         if Bet.query.filter_by(game_id=self.id, user_id=user_id).first():
-
             return True
-
         else:
-
             return False
-
 
     def start():
 
