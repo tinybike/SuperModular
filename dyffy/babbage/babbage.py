@@ -10,15 +10,13 @@ Usage:
 """
 import threading
 import datetime
-import account
-import currency
+
 from fysom import Fysom
 from decimal import Decimal
 from utils import *
 
 from dyffy import app
-from dyffy.models import db, User, Game, Bet, BetHistory
-
+from dyffy.models import db, User, Game, Bet
 
 sketch = """
 Game map:
@@ -30,22 +28,30 @@ Game map:
 
 class Jellybeans(object):
     
-    def __init__(self, min_players=3, game_minutes=10, user_id=None):
+    def __init__(self, user_id, min_players=3, game_minutes=10):
 
-        self.game = Game.query.filter(db.table.column.ilike(str(user_id)).filter_by(finished=None).first()
+        self.game = Game.query.filter(Game.players.like('%' + str(user_id) + '%')).filter_by(finished=None).first()
 
-        if not game:
+        if not self.game:
 
-            self.game = Game(min_players=min_players, game_minutes=game_minutes)
+            self.game = Game.query.filter_by(started=None, finished=None).first()
 
-            self.game.add_player(user_id)
+            if not self.game:
 
-        return self.game
+                soundcloud_id = 38422945
+
+                self.game = Game(min_players=min_players, game_minutes=game_minutes, soundcloud_id=soundcloud_id)
+                db.session.add(self.game)
+                db.session.commit()
+
+                self.game.add_player(user_id)
+
+
 
 
     def bet(self, user_id, guess, bet=10):
 
-        self.game.add_bet(user_id=user_id, guess=guess, amount=bet)
+        self.game.add_bet(user_id=user_id, guess=guess, bet=bet)
 
         if len(self.game.bets) >= self.game.min_players:
 

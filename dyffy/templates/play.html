@@ -13,18 +13,19 @@
 			</div>
 		      <div class="small-12 columns">
 
-			        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/38422945&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
+			        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/{{ game.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
 
 			        <div id="current-bets">
 			        	{% if game.bets %}
 			        	<ul>
 			        	{% for bet in game.bets %}
-							<li><span class="friendable">{{ game.bet.user['username'] }}</span> <b>{{ game.bet.guess }}</b></li>
+							<li><span class="friendable">{{ bet.user_id }}</span> <b>{{ bet.guess }}</b></li>
 			        	{% endfor %}
 			        	</ul>
 			        	{% endif %}
 			        </div>
 
+					{% if not game.has_bet(g.user.id) %}
 			        <form id="bet" method="POST" action="#">
 			          <div class="row collapse">
 			          	<div class="small-6 columns">
@@ -35,9 +36,8 @@
 			               <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>
 			            </div>
 			          </div>
-			         
-
 			        </form>
+			        {% endif %}
 
 		      </div>
 		   </div>

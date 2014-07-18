@@ -88,7 +88,6 @@ def get_facebook_oauth_token():
 
 
 
-
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
@@ -111,11 +110,12 @@ def home():
 
 
 @app.route('/play')
+@login_required
 def play():
 
-    game = {}
+    jb = Jellybeans(current_user.id)
 
-    return render_template('play.html', game=game)
+    return render_template('play.html', game=jb.game)
 
 
 @app.route('/register', methods=['GET','POST'])
