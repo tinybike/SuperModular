@@ -72,7 +72,8 @@ class Jellybeans(object):
         """Enter a game"""
         if config.DEBUG:
             print e.user_id, "enters the lobby"
-        self.players.append({"user_id": e.user_id})
+        user_id = str(e.user_id)
+        self.players.append({"user_id": user_id})
         self.num_players += 1
 
     def play(self, e):
@@ -166,6 +167,10 @@ class Jellybeans(object):
                       amount=bet,
                       currency=currency)
 
+    def get_player(self, user_id):
+        p = [player["user_id"] == e.user_id for player in self.players]
+        return self.players[p.index(True)]
+
     def get_players(self):
         return self.players
 
@@ -173,11 +178,9 @@ if __name__ == '__main__':
     config.DEBUG = True
     print sketch
     jb = Jellybeans(min_players=3, game_minutes=10)
-    # jb.game.enter()
     jb.add_player("4")
     jb.add_player("3")
     jb.add_player("2")
-    # jb.game.play(options="punk")
     jb.game.gameover()
     jb.game.cashout()
     db.session.close()
