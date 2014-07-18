@@ -13,7 +13,7 @@ import datetime
 from decimal import Decimal
 
 from dyffy import app
-from dyffy.models import db, User, Game, Bet
+from dyffy.models import db, User, Game, Bet, SoundCloud
 
 sketch = """
 Game map:
@@ -29,13 +29,17 @@ class Jellybeans(object):
 
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
 
+        SoundCloud.update()
+        track = SoundCloud.get_random_track()
+        app.logger.info(track)
+        
         if not self.game:
 
             self.game = Game.query.filter_by(started=None, finished=None).first()
 
             if not self.game:
 
-                soundcloud_id = 38422945
+                soundcloud_id = track["id"]
 
                 self.game = Game(min_players=min_players, game_minutes=game_minutes, soundcloud_id=soundcloud_id)
                 db.session.add(self.game)

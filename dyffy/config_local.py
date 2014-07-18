@@ -1,5 +1,18 @@
 SECRET_KEY = 'UNIQUE SECRET KEY' 
-SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'
+
+POSTGRES = {
+    "host": "localhost",
+    "database": "dyffm",
+    "user": "dyffm",
+    "password": "dyffm",
+    "driver": "psycopg2",
+    "port": 5432,
+}
+SQLALCHEMY_DATABASE_URI = (
+    "postgresql+" + POSTGRES["driver"] + "://" +
+    POSTGRES["user"] + ":" + POSTGRES["password"] + "@" +
+    POSTGRES["host"] + "/" + POSTGRES["database"]
+)
 
 FACEBOOK_APP_ID = '807459499283753'
 FACEBOOK_APP_SECRET = '3a82b21a79bf8fcea78d29c00555513e'
