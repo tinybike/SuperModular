@@ -23,5 +23,4 @@ psycopg2==2.5.3
 requests==2.3.0
 wsgiref==0.1.2
 pandas==0.14.1
-distribute==0.6.49
 soundcloud==0.4.1
