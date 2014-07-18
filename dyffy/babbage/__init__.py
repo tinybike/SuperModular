@@ -1,4 +1,4 @@
-import sys
-import cdecimal
-sys.modules["decimal"] = cdecimal
+# import sys
+# import cdecimal
+# sys.modules["decimal"] = cdecimal
 from .babbage import Jellybeans
