@@ -104,6 +104,7 @@ class Bet(Base):
     __tablename__ = "bets"
 
     id = Column(Integer, primary_key=True)
+    game_id = Column(Integer, ForeignKey("game.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     game = Column(String(100), nullable=False)
     amount = Column(EightDecimalPoints, nullable=False)
@@ -132,9 +133,9 @@ class SoundCloud(Base):
     updated = Column(DateTime, default=func.transaction_timestamp())
 
 
-class Jellybeans(Base):
+class Game(Base):
     """"""
-    __tablename__ = "jellybeans"
+    __tablename__ = "game"
 
     id = Column(Integer, primary_key=True)
     soundcloud_id = Column(String(100))

@@ -4,3 +4,4 @@ sqlalchemy
 numpy
 pandas
 soundcloud
+cdecimal
