@@ -13,6 +13,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, current_user,
 from werkzeug import secure_filename
 
 from dyffy.models import db, User
+from dyffy.babbage import Jellybeans
 
 import requests
 

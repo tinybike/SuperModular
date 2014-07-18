@@ -210,3 +210,30 @@ class BetHistory(db.Model):
     currency = db.Column(db.String(10), nullable=False)
     target = db.Column(db.String(10), nullable=False)
     time_of_bet = db.Column(db.DateTime, nullable=False, default=db.func.transaction_timestamp())
+
+
+
+class SoundCloud(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    soundcloud_id = db.Column(db.String(100), nullable=False)
+    genre = db.Column(db.String(25))
+    artist = db.Column(db.String(100))
+    duration = db.Column(db.Float, nullable=False)
+    favorites = db.Column(db.Integer, nullable=False)
+    playbacks = db.Column(db.Integer, nullable=False)
+    mojo = db.Column(db.Float, nullable=False)
+    updated = db.Column(db.DateTime, default=db.func.transaction_timestamp())
+
+
+class Game(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    soundcloud_id = db.Column(db.String(100))
+    genre = db.Column(db.String(25))
+    duration = db.Column(db.Float, nullable=False)
+    outcome = db.Column(db.String(10))
+    created = db.Column(db.DateTime, default=db.func.transaction_timestamp())
+    started = db.Column(db.DateTime)
+    finished = db.Column(db.DateTime)
+
