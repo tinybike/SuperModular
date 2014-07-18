@@ -33,8 +33,6 @@ class Jellybeans(object):
         track = SoundCloud.get_random_track()
         app.logger.info(track)
         
-        same_track = SoundCloud.get_track(track["id"])
-
         if not self.game:
 
             self.game = Game.query.filter_by(started=None, finished=None).first()
