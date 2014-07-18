@@ -9,7 +9,7 @@
     Cab.prototype.ignition = function () {
 
         if (typeof game_started != 'undefined') {
-        	this.setGameTimer(game_started);
+        	this.setGameTimer(game_started, game_duration);
         }
 
         socket.emit('get-chats');
@@ -55,7 +55,7 @@
         // sync game timer
         socket.on('sync-timer', function (message) {
 
-            self.setGameTimer(message.start_time);
+            self.setGameTimer(message.start_time, message.duration);
         });
 
         // start game
@@ -64,7 +64,7 @@
         	$('.rules').css('display', 'none');
         	$('.stats').css('display', 'block');
 
-        	self.setGameTimer(message.start_time)
+        	self.setGameTimer(message.start_time, message.duration)
         });
 
         // chat
@@ -147,20 +147,35 @@
         }
     };
 
-    Cab.prototype.setGameTimer = function(start_time) {
+    Cab.prototype.setGameTimer = function(start_time, duration) {
 
-		var ms = new Date() - new Date(start_time);
-		var total_seconds = parseInt(ms / 1000);
-		var minutes = parseInt(total_seconds / 60);
-		var seconds = total_seconds % 60;
+		var ms_elapsed = new Date() - new Date(start_time);
+
+		var total_seconds_left = (duration * 60) - parseInt(ms_elapsed / 1000);
+
+		if (total_seconds_left > 0) {
+
+			var minutes = parseInt(total_seconds_left / 60);
+			var seconds = total_seconds_left % 60;
+			if (seconds == 0) { seconds = '00' }
+			else if (seconds < 10) { seconds = '0'+seconds }
+			if (minutes == 0) { miuntes = '00' }
+			else if (minutes < 10) { minutes = '0'+minutes }
+
+			var start_time = minutes+':'+seconds;
+
+		} else {
+
+		 	var start_time = "00:00";
+		 }
 
         $(".digits").each(function () {
 
             $(this).empty().countdown({
                 image: "static/img/digits.png",
                 format: "mm:ss",
-                startTime: minutes+':'+seconds,
-                timerEnd: function () { self.tuneup(); }
+                startTime: start_time,
+                timerEnd: function () { }
             });
         });
     };

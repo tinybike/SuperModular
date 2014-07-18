@@ -7,7 +7,12 @@
 
         <div class="row">
     
-            {% if game.started %}<script>window.game_started = '{{ game.started }}';</script>{% endif %}
+            {% if game.started %}
+            <script>
+                window.game_started = '{{ game.started }}';
+                window.game_duration = {{ game.game_minutes }};
+            </script>
+            {% endif %}
             <div class="small-12 columns stats" {% if not game.started %}style="display: none;"{% endif %}>
                 <div class="time-remaining">
                     <div class="cell">
@@ -17,7 +22,7 @@
             </div>
 
             <div class="small-12 columns rules" {% if game.started %}style="display: none;"{% endif %}>
-                <h2>Bet against other players, how many times this track will be played in 10 minutes</h2>
+                <h2>Bet against other players, how many times this track will be played in {{ game.game_minutes }} minutes</h2>
                 <p>Clock will start when enough players have guessed</p>
             </div>
 

@@ -292,9 +292,8 @@ class Game(db.Model):
         self.started = datetime.datetime.now()
         db.session.commit()
 
-class SoundCloud(db.Model):
 
-    __tablename__ = "soundcloud"
+class SoundCloud(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     soundcloud_id = db.Column(db.Integer)
@@ -375,17 +374,28 @@ class SoundCloud(db.Model):
     
     @classmethod
     def get_random_track(self):
+
+        return {
+            "id": 158292685,
+            "playbacks": 23333,
+            "favorites": 23432,
+        }
+
         track = self.query.filter(self.played==None).order_by(self.mojo.desc()).first()
         track.played = True
+
         db.session.commit()
+
         return {
             "id": track.soundcloud_id,
             "playbacks": track.playbacks,
             "favorites": track.favorites,
         }
 
+
     @classmethod
     def get_track(self, track_id):
+
         track = self.query.filter(self.soundcloud_id==track_id).first()
         try:
             client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],

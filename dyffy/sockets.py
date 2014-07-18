@@ -163,7 +163,7 @@ def bet(message):
 
             if jb.game.started:
 
-                 emit('start-game', {'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S")})
+                emit('start-game', {'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"), 'duration': jb.game.game_minutes})
 
 
 
