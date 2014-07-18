@@ -11,7 +11,6 @@ Usage:
 import threading
 import datetime
 
-from fysom import Fysom
 from decimal import Decimal
 from utils import *
 
