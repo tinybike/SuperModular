@@ -63,8 +63,6 @@ def facebook_authorized(response):
 
         return 'Access denied: %s' % response.message
 
-    app.logger.info(response['access_token'])
-
     session['oauth_token'] = (response['access_token'], '')
     me = facebook.get('/me')
 

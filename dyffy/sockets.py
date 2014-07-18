@@ -14,6 +14,8 @@ from flask.ext.socketio import emit
 from dyffy.models import db, User, Friend, Chat
 from babbage import Jellybeans
 
+
+
 @socketio.on('get-wallet-balance', namespace='/socket.io/')
 def get_wallet_balance():
 
@@ -138,13 +140,27 @@ def bet(message):
 
     if current_user.is_authenticated():
 
-        app.logger.info(message)
-
         jb = Jellybeans(current_user.id)
         
         if not jb.game.has_bet(current_user.id):
 
             jb.bet(current_user.id, message['guess'])
+
+            emit('balance', {'dyf': str(current_user.wallet.dyf_balance)})
+
+            emit('add-bet', {
+                'game_id': jb.game.id, 
+                'bet': {
+                    'user': {
+                        'username': current_user.username,
+                        'id': current_user.id
+                    }, 
+                'guess': message['guess'], 
+                'amount': 10
+                }
+            }, broadcast=True)
+
+            emit('no-more-bets')
 
 
 @socketio.on('connect', namespace='/socket.io/')
