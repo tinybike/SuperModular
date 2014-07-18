@@ -184,7 +184,7 @@ class Chat(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	author = db.Column(db.String(50))   # user.username
-	comment = db.Column(db.Text)
+	comment = db.Column(db.Text)d
 	timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
 
 
@@ -221,11 +221,16 @@ class Game(db.Model):
 
     	db.session.commit()
 
-    def add_bet(self, user_id, guess, bet=10)
+    def add_bet(self, user_id, guess, bet=10):
 
     	bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
 
     	db.session.add(bet)
+    	db.session.commit()
+
+    def start():
+
+    	self.started = datetime.datetime.now()
     	db.session.commit()
 
 
