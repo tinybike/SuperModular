@@ -317,8 +317,9 @@ class SoundCloud(db.Model):
                  .all())
         if res:
             time_elapsed = datetime.datetime.now() - res[0].updated
-            if time_elapsed.total_seconds() < 600:
-                print "SoundCloud data up-to-date."
+            total_minutes = float(time_elapsed.total_seconds()) / 60.0
+            if total_minutes < 10:
+                app.logger.info("SoundCloud data up-to-date: %d minutes since last update" % total_minutes)
                 return
 
         self.query.delete()
