@@ -27,7 +27,7 @@ class Jellybeans(object):
     
     def __init__(self, user_id, min_players=3, game_minutes=10):
 
-        self.game = Game.query.filter(Game.players.like('%' + str(user_id) + '%')).filter_by(finished=None).first()
+        self.game = Game.query.filter(Game.players.like('%,' + str(user_id) + ',%')).filter_by(finished=None).first()
 
         if not self.game:
 

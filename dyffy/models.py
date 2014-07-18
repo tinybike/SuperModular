@@ -253,7 +253,7 @@ class Game(db.Model):
         else:
             players = []
         players.append(str(user_id))
-        self.players = ','.join(players)
+        self.players = ',' + ','.join(players) + ','
 
         db.session.commit()
 
