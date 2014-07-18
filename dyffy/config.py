@@ -26,6 +26,12 @@ MAX_CONTENT_LENGTH =  10000000
 FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID', '')
 FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
 
+# soundcloud API
+SOUNDCLOUD_ID = os.environ.get("SOUNDCLOUD_ID", "")
+SOUNDCLOUD_SECRET = os.environ.get("SOUNDCLOUD_SECRET", "")
+SOUNDCLOUD_USERNAME = os.environ.get("SOUNDCLOUD_USERNAME", "")
+SOUNDCLOUD_PASSWORD = os.environ.get("SOUNDCLOUD_PASSWORD", "")
+
 # use local config for development environments
 if DEPLOY_ENV != 'prod':
     DEBUG = True

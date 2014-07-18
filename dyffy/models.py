@@ -178,8 +178,8 @@ class Wallet(db.Model):
             precision = ".000001"
         else:
             precision = ".00000001"
-        # amount = Decimal(amount).quantize(Decimal(precision),
-        #                                   rounding=ROUND_HALF_EVEN)
+        amount = Decimal(amount).quantize(Decimal(precision),
+                                          rounding=ROUND_HALF_EVEN)
         if currency == "DYF":
             balance = self.dyf_balance
         elif currency == "BTC":
