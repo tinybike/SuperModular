@@ -133,6 +133,14 @@ def chat(message):
         emit('chat', {'chat': [chat]}, broadcast=True)
 
 
+@socketio.on('bet', namespace='/socket.io/')
+def chat(message):
+
+    if current_user.is_authenticated():
+
+        app.logger.info(message)
+
+
 @socketio.on('connect', namespace='/socket.io/')
 def socket_connect():
 

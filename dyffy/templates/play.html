@@ -25,10 +25,11 @@
 			        	{% endif %}
 			        </div>
 
-			        <form id="bet-left" method="POST" action="#">
+			        <form id="bet" method="POST" action="#">
 			          <div class="row collapse">
 			          	<div class="small-6 columns">
-			              <input type="text" class="large" id="increase-guess" placeholder="Your guess" />
+			          		<input type="hidden" id="game-id" value="1" />
+			              <input type="text" class="large" id="guess" placeholder="Your guess" />
 			            </div>
 			            <div class="small-6 columns">
 			               <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>

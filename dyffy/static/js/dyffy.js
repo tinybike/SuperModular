@@ -158,20 +158,17 @@
             $('#broadcast_data').val('');
         });
 
-        // bets
-        $('form#bet-left').submit(function (event) {
+        // bet
+        $('form#bet').submit(function (event) {
             event.preventDefault();
-            self.bet('left');
+            self.bet(this);
         });
-        $('form#bet-right').submit(function (event) {
-            event.preventDefault();
-            self.bet('right');
-        });
+
         return this;
     };
 
     // data synchronizer
-    Cab.prototype.tuneup = function (repeat) {
+    Cab.prototype.tuneup = function(repeat) {
 
         socket.emit('get-wallet-balance');
         socket.emit('get-time-remaining');
@@ -181,35 +178,23 @@
         return this;
     };
 
-    // Actions: methods that must be actively called.
-    Cab.prototype.bet = function (direction) {
+    Cab.prototype.bet = function(form) {
 
         var self = this;
-        var amount, error_text, target;
-        target = self.battle_market[direction];
-        amount = $('#bet-input-' + direction).val();
 
-        if (!isNaN(amount)) {
+        var guess = $(form).find('#guess').val();
+        var game_id = $(form).find('#game-id').val();
+        var amount = 10;
 
-            amount = parseFloat(amount);
+        console.log(guess);
 
-            // Make sure we've got enough coins to make the bet
-            if (amount <= self.dyff_balance) {
+        if (!isNaN(guess)) {
 
-                $('#bet-input-' + direction).val(null);
-                socket.emit('battle-bet', {
+                socket.emit('bet', {
                     amount: amount,
-                    denomination: $('#bet-denomination-' + direction).val(),
-                    left: self.battle_market.left,
-                    right: self.battle_market.right,
-                    target: target
+                    guess: guess,
+                    game_id: game_id
                 });
-
-            } else {
-
-                error_text = "You do not have enough dyffs in your account to place this bet.";
-                self.modal(error_text, 'h5', 'Betting error');
-            }
 
         } else {
 

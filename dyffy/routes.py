@@ -112,7 +112,9 @@ def home():
 @app.route('/play')
 def play():
 
-    return render_template('play.html')
+    game = {}
+
+    return render_template('play.html', game=game)
 
 
 @app.route('/register', methods=['GET','POST'])
