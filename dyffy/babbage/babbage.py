@@ -8,11 +8,9 @@ Usage:
         game.play(user_id="4", title="soundcloud", genre="punk")
 @author jack@tinybike.net
 """
-import threading
 import datetime
 
 from decimal import Decimal
-from utils import *
 
 from dyffy import app
 from dyffy.models import db, User, Game, Bet
