@@ -31,7 +31,6 @@ class Jellybeans(object):
 
         SoundCloud.update()
         track = SoundCloud.get_random_track()
-        app.logger.info(track)
         
         if not self.game:
 
