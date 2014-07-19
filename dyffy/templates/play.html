@@ -22,7 +22,7 @@
             </div>
 
             <div class="small-12 columns rules" {% if game.started %}style="display: none;"{% endif %}>
-                <h2>Bet against other players, how many times this track will be played in {{ game.game_minutes }} minutes</h2>
+                <h2>Bet against other players, how many times this track will be played in {{ game.game_minutes }} minute{% if game.game_minutes != 1 %}s{% endif %}</h2>
                 <p>Clock will start when enough players have guessed</p>
             </div>
 
