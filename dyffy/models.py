@@ -270,7 +270,6 @@ class Game(db.Model):
         self.soundcloud_id = soundcloud_id
 
         if self.started is not None:
-            app.logger.info(self.started)
             self.countdown(self.finish, True)
 
         self.timer = None
@@ -310,7 +309,6 @@ class Game(db.Model):
     def countdown(self, callback, already_started=False):
         
         def wrapper():
-            self.countdown(callback)
             callback()
         
         if already_started:
@@ -318,15 +316,37 @@ class Game(db.Model):
         else:
             seconds_remaining = self.game_minutes * 60
 
+        print seconds_remaining
+
         self.timer = threading.Timer(seconds_remaining, wrapper)
         self.timer.start()
 
     def finish(self):
 
+        print "Game over."
+
         self.timer = None
 
-        print "Game over!"        
+        # Get actual number of playbacks + favorites
+        track = SoundCloud.get_track(self.soundcloud_id)
+        actual = track['playbacks']
 
+        bets = Bet.query.filter(Bet.game_id==self.id).all()
+        diff = []
+        total_amount_bet = 0
+        for b in bets:
+            diff.append(abs(float(b.guess) - actual))
+            total_amount_bet += float(b.amount)
+        winner_id = bets[difference.index(min(diff))].user_id
+        winner = User.query.get(winner_id)
+
+        winner.wallet.dyf_balance + total_amount_bet
+        db.session.commit()
+
+        emit('winner', {
+            'winner': winner.username,
+            'winnings': str(total_amount_bet),
+        })
 
 
 class SoundCloud(db.Model):

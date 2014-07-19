@@ -52,6 +52,13 @@
             self.smalltalk();
         });
 
+        // someone won!
+        socket.on('winner', function (message) {
+            self.modal(
+                message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Congratulations'
+            );
+        });
+
         // incoming time elapsed from server
         socket.on('time-remaining', function (message) {
             self.setGameTimer(message.start_time, message.current_time, message.duration)
@@ -218,9 +225,23 @@
         });
     };
 
+    Cab.prototype.modal = function(bodytext, bodytag, headertext) {
+        var modal_body;
+        if (headertext) {
+            $('#modal-header').empty().text(headertext);
+        }
+        if (bodytext) {
+            modal_body = (bodytag) ? $('<' + bodytag + ' />') : $('<p />');
+            $('#modal-body').empty().append(
+                modal_body.addClass('modal-error-text').text(bodytext)
+            );
+        }
+        $('#modal-dynamic').foundation('reveal', 'open');
+    };
+
     $(document).ready(function () {
 
-        window.repeat = 10000;   // data synchronization interval
+        window.repeat = 50000;   // data synchronization interval
         
         window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 

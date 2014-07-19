@@ -73,6 +73,12 @@
             {% include "includes/registration_form.html" %}
         </div>
 
+        <div id="modal-dynamic" class="reveal-modal small" data-reveal>
+          <h3 id="modal-header"></h3>
+          <div id="modal-body"></div>
+          <a class="close-reveal-modal">&#215;</a>
+        </div>
+
         {% block extra_modal %}{% endblock %}
 
         <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
