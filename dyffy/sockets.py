@@ -17,6 +17,7 @@ from babbage import Jellybeans
 
 @socketio.on('get-time-remaining', namespace='/socket.io/')
 def get_time_remaining():
+    print "get-time-remaining"
     if current_user.is_authenticated():
         jb = Jellybeans(current_user.id)
         if jb.game.started is not None:
@@ -39,6 +40,19 @@ def get_wallet_balance():
                 'dyf': str(wallet.dyf_balance),
                 'btc': str(wallet.btc_balance)
             })
+
+
+@socketio.on('finish-game', namespace='/socket.io/')
+def finish_game(message):
+    if current_user.is_authenticated():
+        jb = Jellybeans(current_user.id)
+        if jb.game.started:
+            jb.game.countdown(jb.game.finish, already_started=True)
+            if jb.game.finished:
+                emit('game-over', {
+                    'winner': jb.game.winner.username,
+                    'winnings': str(jb.game.winnings),
+                })
 
 
 @socketio.on('friend-request', namespace='/socket.io/')

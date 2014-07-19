@@ -52,11 +52,13 @@
             self.smalltalk();
         });
 
-        // someone won!
-        socket.on('winner', function (message) {
+        // game over
+        socket.on('game-over', function (message) {
+            $('.stats').hide();
             self.modal(
                 message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Congratulations'
             );
+            $('.bet').show();
         });
 
         // incoming time elapsed from server
@@ -67,10 +69,10 @@
         // start game
         socket.on('start-game', function (message) {
 
-        	$('.rules').css('display', 'none');
-        	$('.stats').css('display', 'block');
+        	$('.rules').hide();
+        	$('.stats').show();
 
-        	self.setGameTimer(message.start_time, message.current_time, message.duration)
+        	self.setGameTimer(message.start_time, message.current_time, message.duration);
         });
 
         // chat
@@ -140,11 +142,11 @@
 
         if (!isNaN(guess)) {
 
-                socket.emit('bet', {
-                    amount: amount,
-                    guess: guess,
-                    game_id: game_id
-                });
+            socket.emit('bet', {
+                amount: amount,
+                guess: guess,
+                game_id: game_id
+            });
 
         } else {
 
@@ -154,6 +156,8 @@
     };
 
     Cab.prototype.setGameTimer = function(start_time, current_time, duration) {
+
+        var self = this;
 
 		var ms_elapsed = new Date(current_time) - new Date(start_time);
 
@@ -170,28 +174,27 @@
 
 			var start_time = minutes+':'+seconds;
 
-		} else {
-
-		 	var start_time = "00:00";
-		 }
-
-        $(".digits").each(function () {
-            var self = this;
-            $(this).empty().countdown({
-                image: "static/img/digits.png",
-                format: "mm:ss",
-                startTime: start_time,
-                timerEnd: function () {
-                    $(this).countdown("pause");
-                }
+            $(".digits").each(function () {
+                $(this).empty().countdown({
+                    image: "static/img/digits.png",
+                    format: "mm:ss",
+                    startTime: start_time,
+                    timerEnd: function () {
+                        if (syncInterval) { clearTimeout(syncInterval); }
+                        socket.emit("finish-game", {"user_id": user_id});
+                    }
+                });
             });
-        });
+		} else {
+		 	// $('.stats').hide();
+		}
     };
 
     // Synchronize timer with the server time
     Cab.prototype.sync = function () {
-        // socket.emit('get-time-remaining');
-        // setTimeout(this.sync, window.repeat);
+        console.log("sync");
+        socket.emit('get-time-remaining');
+        syncInterval = setTimeout(function () { this.sync(); }, repeat);
         return this;
     };
 
@@ -241,7 +244,7 @@
 
     $(document).ready(function () {
 
-        window.repeat = 50000;   // data synchronization interval
+        window.repeat = 100000;   // data synchronization interval
         
         window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 
@@ -249,7 +252,7 @@
         	.ignition()
         	.intake()
         	.exhaust()
-            .sync()
+            .sync(1)
         	.smalltalk();
 
     });
