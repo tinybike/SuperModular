@@ -56,7 +56,7 @@
         socket.on('game-over', function (message) {
             $('.stats').hide();
             self.modal(
-                message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Congratulations'
+                message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Round complete'
             );
             $('.bet').show();
         });

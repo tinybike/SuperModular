@@ -19,7 +19,7 @@ Game map:
 
 class Jellybeans(object):
     
-    def __init__(self, user_id, min_players=1, game_minutes=1):
+    def __init__(self, user_id, min_players=2, game_minutes=10):
 
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
 
