@@ -10,6 +10,7 @@
             {% if game.started %}
             <script>
                 window.game_started = '{{ game.started }}';
+                window.game_current_time = '{{ game.current_time }}'
                 window.game_duration = {{ game.game_minutes }};
             </script>
             {% endif %}

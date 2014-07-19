@@ -9,7 +9,7 @@
     Cab.prototype.ignition = function () {
 
         if (typeof game_started != 'undefined') {
-        	this.setGameTimer(game_started, game_duration);
+        	this.setGameTimer(game_started, game_current_time, game_duration);
         }
 
         socket.emit('get-chats');
@@ -55,7 +55,7 @@
         // sync game timer
         socket.on('sync-timer', function (message) {
 
-            self.setGameTimer(message.start_time, message.duration);
+            self.setGameTimer(message.start_time, message.current_time, message.duration);
         });
 
         // start game
@@ -64,7 +64,7 @@
         	$('.rules').css('display', 'none');
         	$('.stats').css('display', 'block');
 
-        	self.setGameTimer(message.start_time, message.duration)
+        	self.setGameTimer(message.start_time, message.current_time, message.duration)
         });
 
         // chat
@@ -147,9 +147,9 @@
         }
     };
 
-    Cab.prototype.setGameTimer = function(start_time, duration) {
+    Cab.prototype.setGameTimer = function(start_time, current_time, duration) {
 
-		var ms_elapsed = new Date() - new Date(start_time);
+		var ms_elapsed = new Date(current_time) - new Date(start_time);
 
 		var total_seconds_left = (duration * 60) - parseInt(ms_elapsed / 1000);
 
