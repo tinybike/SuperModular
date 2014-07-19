@@ -25,7 +25,7 @@ Game map:
 
 class Jellybeans(object):
     
-    def __init__(self, user_id, min_players=3, game_minutes=10):
+    def __init__(self, user_id, min_players=1, game_minutes=1):
 
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
 
@@ -38,14 +38,17 @@ class Jellybeans(object):
 
             if not self.game:
 
+                SoundCloud.update()
+                track = SoundCloud.get_random_track()
                 soundcloud_id = track["id"]
 
-                self.game = Game(min_players=min_players, game_minutes=game_minutes, soundcloud_id=soundcloud_id)
+                self.game = Game(min_players=min_players,
+                                 game_minutes=game_minutes,
+                                 soundcloud_id=soundcloud_id)
                 db.session.add(self.game)
                 db.session.commit()
 
                 self.game.add_player(User.query.get(user_id))
-
 
 
     def bet(self, user_id, guess, bet=10):
