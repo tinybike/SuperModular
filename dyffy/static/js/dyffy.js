@@ -249,7 +249,7 @@
         	.ignition()
         	.intake()
         	.exhaust()
-            .sync(1)
+            .sync()
         	.smalltalk();
 
     });

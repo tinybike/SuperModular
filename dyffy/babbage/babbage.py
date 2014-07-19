@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 """
-Babbage: dyffy's super sweet game engine
-Usage:
-    - Events are methods of the game object:
-        from babbage import game
-        game.enter(user_id="4", title="soundcloud")
-        game.play(user_id="4", title="soundcloud", genre="punk")
-@author jack@tinybike.net
+dyffy's super sweet game engine
 """
 import datetime
 
@@ -25,7 +19,7 @@ Game map:
 
 class Jellybeans(object):
     
-    def __init__(self, user_id, min_players=2, game_minutes=5):
+    def __init__(self, user_id, min_players=1, game_minutes=1):
 
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
 

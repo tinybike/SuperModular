@@ -268,11 +268,11 @@ class Game(db.Model):
         self.min_players = min_players
         self.game_minutes = game_minutes
         self.soundcloud_id = soundcloud_id
+        self.timer = None
 
-        if self.started is not None:
+        if self.started is not None and self.finished is None:
             self.countdown(self.finish, already_started=True)
 
-        self.timer = None
 
     def add_player(self, user):
 
@@ -309,7 +309,8 @@ class Game(db.Model):
     def countdown(self, callback, already_started=False):
         
         def wrapper():
-            callback()
+            if self.finished is None:
+                callback()
         
         if already_started:
             seconds_elapsed = (datetime.datetime.now() - self.started).total_seconds()
@@ -319,7 +320,8 @@ class Game(db.Model):
 
         if seconds_remaining <= 0:
             self.timer = None
-            callback()
+            if self.finished is None:
+                callback()
         else:
             self.timer = threading.Timer(seconds_remaining, wrapper)
             self.timer.start()
@@ -327,22 +329,26 @@ class Game(db.Model):
     def finish(self):
 
         self.timer = None
+        
         self.finished = datetime.datetime.now()
+        db.session.commit()
 
         # Get actual number of playbacks + favorites
         track = SoundCloud.get_track(self.soundcloud_id)
         actual = track['playbacks']
 
+        # Calculate winner + how much they won
         bets = Bet.query.filter(Bet.game_id==self.id).all()
         diff = []
         total_amount_bet = Decimal("0")
         for b in bets:
             diff.append(abs(float(b.guess) - actual))
-            total_amount_bet += Decimal(str(b.amount))
+            total_amount_bet += b.amount
+        
         winner_id = bets[diff.index(min(diff))].user_id
         self.winner = User.query.get(winner_id)
-
         self.winnings = total_amount_bet
+        
         self.winner.wallet.dyf_balance += self.winnings
         db.session.commit()
 
