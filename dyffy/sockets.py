@@ -22,6 +22,7 @@ def get_time_remaining():
         if jb.game.started is not None:
             emit('time-remaining', {
                 'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
+                'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
                 'duration': jb.game.game_minutes,
             })
 
@@ -173,7 +174,10 @@ def bet(message):
 
             if jb.game.started:
 
-                emit('start-game', {'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"), 'duration': jb.game.game_minutes})
+                emit('start-game', {
+                    'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
+                    'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
+                    'duration': jb.game.game_minutes})
 
 
 

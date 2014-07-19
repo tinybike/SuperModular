@@ -28,7 +28,10 @@ class Jellybeans(object):
     def __init__(self, user_id, min_players=1, game_minutes=1):
 
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
-        
+
+        SoundCloud.update()
+        track = SoundCloud.get_random_track()
+
         if not self.game:
 
             self.game = Game.query.filter_by(started=None, finished=None).first()
@@ -46,6 +49,10 @@ class Jellybeans(object):
                 db.session.commit()
 
                 self.game.add_player(User.query.get(user_id))
+
+        if self.game:
+            self.game.current_time = datetime.datetime.now()
+
 
 
     def bet(self, user_id, guess, bet=10):
