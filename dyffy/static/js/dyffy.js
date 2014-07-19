@@ -53,9 +53,14 @@
         });
 
         // sync game timer
-        socket.on('sync-timer', function (message) {
+        // socket.on('sync-timer', function (message) {
 
-            self.setGameTimer(message.start_time, message.duration);
+        //     self.setGameTimer(message.start_time, message.duration);
+        // });
+
+        // incoming time elapsed from server
+        socket.on('time-remaining', function (message) {
+            self.setGameTimer(message.start_time, message.duration)
         });
 
         // start game
@@ -170,14 +175,23 @@
 		 }
 
         $(".digits").each(function () {
-
+            var self = this;
             $(this).empty().countdown({
                 image: "static/img/digits.png",
                 format: "mm:ss",
                 startTime: start_time,
-                timerEnd: function () { }
+                timerEnd: function () {
+                    $(this).countdown("pause");
+                }
             });
         });
+    };
+
+    // Synchronize timer with the server time
+    Cab.prototype.sync = function () {
+        // socket.emit('get-time-remaining');
+        // setTimeout(this.sync, window.repeat);
+        return this;
     };
 
     // interim function to encapsulate friending events 
@@ -212,14 +226,15 @@
 
     $(document).ready(function () {
 
-        var repeat = 30000;   // data synchronization interval
-
+        window.repeat = 10000;   // data synchronization interval
+        
         window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 
         new Cab()
         	.ignition()
         	.intake()
         	.exhaust()
+            .sync()
         	.smalltalk();
 
     });

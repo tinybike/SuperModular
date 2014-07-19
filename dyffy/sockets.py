@@ -15,6 +15,16 @@ from dyffy.models import db, User, Friend, Chat
 from babbage import Jellybeans
 
 
+@socketio.on('get-time-remaining', namespace='/socket.io/')
+def get_time_remaining():
+    if current_user.is_authenticated():
+        jb = Jellybeans(current_user.id)
+        if jb.game.started is not None:
+            emit('time-remaining', {
+                'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
+                'duration': jb.game.game_minutes,
+            })
+
 @socketio.on('get-wallet', namespace='/socket.io/')
 def get_wallet_balance():
 

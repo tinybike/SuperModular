@@ -374,7 +374,7 @@ class SoundCloud(db.Model):
                                     genres=genre,
                                     types="recording,live,remix,original",
                                     sharing="public",
-                                    limit=200)
+                                    limit=100)
             except Exception as exc:
                 print exc
                 continue
@@ -403,19 +403,13 @@ class SoundCloud(db.Model):
             df = df.sort("mojo", ascending=False)
 
             # Insert the ranked tracks into the database
-            df.to_sql("soundcloud", db.engine, if_exists="append", index=False)
+            df.to_sql("sound_cloud", db.engine, if_exists="append", index=False)
             
             # Pause so we don't spam the Soundcloud API
             time.sleep(1)
     
     @classmethod
     def get_random_track(self):
-
-        return {
-            "id": 158292685,
-            "playbacks": 23333,
-            "favorites": 23432,
-        }
 
         track = self.query.filter(self.played==None).order_by(self.mojo.desc()).first()
         track.played = True
