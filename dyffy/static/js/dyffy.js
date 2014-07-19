@@ -167,10 +167,8 @@
 
 			var minutes = parseInt(total_seconds_left / 60);
 			var seconds = total_seconds_left % 60;
-			if (seconds == 0) { seconds = '00' }
-			else if (seconds < 10) { seconds = '0'+seconds }
-			if (minutes == 0) { miuntes = '00' }
-			else if (minutes < 10) { minutes = '0'+minutes }
+			if (seconds < 10) { seconds = '0'+seconds }
+			if (minutes < 10) { minutes = '0'+minutes }
 
 			var start_time = minutes+':'+seconds;
 
@@ -180,21 +178,20 @@
                     format: "mm:ss",
                     startTime: start_time,
                     timerEnd: function () {
+                        $('.stats').hide();
                         if (syncInterval) { clearTimeout(syncInterval); }
                         socket.emit("finish-game", {"user_id": user_id});
                     }
                 });
             });
-		} else {
-		 	// $('.stats').hide();
 		}
     };
 
     // Synchronize timer with the server time
     Cab.prototype.sync = function () {
-        console.log("sync");
+        var self = this;
         socket.emit('get-time-remaining');
-        syncInterval = setTimeout(function () { this.sync(); }, repeat);
+        syncInterval = setTimeout(function () { self.sync(); }, repeat);
         return this;
     };
 

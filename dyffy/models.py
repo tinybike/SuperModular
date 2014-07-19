@@ -270,7 +270,6 @@ class Game(db.Model):
         self.soundcloud_id = soundcloud_id
 
         if self.started is not None:
-            print "Restarting countdown"
             self.countdown(self.finish, already_started=True)
 
         self.timer = None
@@ -317,8 +316,6 @@ class Game(db.Model):
             seconds_remaining = self.game_minutes*60 - seconds_elapsed
         else:
             seconds_remaining = self.game_minutes*60
-        
-        print "counting down:", seconds_remaining, "seconds remaining"
 
         if seconds_remaining <= 0:
             self.timer = None
@@ -328,8 +325,6 @@ class Game(db.Model):
             self.timer.start()
 
     def finish(self):
-
-        print "Game over."
 
         self.timer = None
         self.finished = datetime.datetime.now()
@@ -347,8 +342,8 @@ class Game(db.Model):
         winner_id = bets[diff.index(min(diff))].user_id
         self.winner = User.query.get(winner_id)
 
-        self.winnings = self.winner.wallet.dyf_balance + total_amount_bet
-        self.winner.wallet.dyf_balance = self.winnings
+        self.winnings = total_amount_bet
+        self.winner.wallet.dyf_balance += self.winnings
         db.session.commit()
 
 
