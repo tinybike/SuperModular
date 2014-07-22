@@ -15,6 +15,17 @@ from dyffy.models import db, User, Friend, Chat
 from babbage import Jellybeans
 
 
+@socketio.on('get-time-remaining', namespace='/socket.io/')
+def get_time_remaining():
+    if current_user.is_authenticated():
+        jb = Jellybeans(current_user.id)
+        if jb.game.started is not None:
+            emit('time-remaining', {
+                'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
+                'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
+                'duration': jb.game.game_minutes,
+            })
+
 @socketio.on('get-wallet', namespace='/socket.io/')
 def get_wallet_balance():
 
@@ -28,6 +39,19 @@ def get_wallet_balance():
                 'dyf': str(wallet.dyf_balance),
                 'btc': str(wallet.btc_balance)
             })
+
+
+@socketio.on('finish-game', namespace='/socket.io/')
+def finish_game(message):
+    if current_user.is_authenticated():
+        jb = Jellybeans(current_user.id)
+        if jb.game.started:
+            jb.game.countdown(jb.game.finish, already_started=True)
+            if jb.game.finished:
+                emit('game-over', {
+                    'winner': jb.game.winner.username,
+                    'winnings': str(jb.game.winnings),
+                })
 
 
 @socketio.on('friend-request', namespace='/socket.io/')

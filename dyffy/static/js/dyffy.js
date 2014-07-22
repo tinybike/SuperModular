@@ -52,19 +52,27 @@
             self.smalltalk();
         });
 
-        // sync game timer
-        socket.on('sync-timer', function (message) {
+        // game over
+        socket.on('game-over', function (message) {
+            $('.stats').hide();
+            self.modal(
+                message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Round complete'
+            );
+            $('.bet').show();
+        });
 
-            self.setGameTimer(message.start_time, message.current_time, message.duration);
+        // incoming time elapsed from server
+        socket.on('time-remaining', function (message) {
+            self.setGameTimer(message.start_time, message.current_time, message.duration)
         });
 
         // start game
         socket.on('start-game', function (message) {
 
-        	$('.rules').css('display', 'none');
-        	$('.stats').css('display', 'block');
+        	$('.rules').hide();
+        	$('.stats').show();
 
-        	self.setGameTimer(message.start_time, message.current_time, message.duration)
+        	self.setGameTimer(message.start_time, message.current_time, message.duration);
         });
 
         // chat
@@ -134,11 +142,11 @@
 
         if (!isNaN(guess)) {
 
-                socket.emit('bet', {
-                    amount: amount,
-                    guess: guess,
-                    game_id: game_id
-                });
+            socket.emit('bet', {
+                amount: amount,
+                guess: guess,
+                game_id: game_id
+            });
 
         } else {
 
@@ -149,6 +157,8 @@
 
     Cab.prototype.setGameTimer = function(start_time, current_time, duration) {
 
+        var self = this;
+
 		var ms_elapsed = new Date(current_time) - new Date(start_time);
 
 		var total_seconds_left = (duration * 60) - parseInt(ms_elapsed / 1000);
@@ -157,27 +167,32 @@
 
 			var minutes = parseInt(total_seconds_left / 60);
 			var seconds = total_seconds_left % 60;
-			if (seconds == 0) { seconds = '00' }
-			else if (seconds < 10) { seconds = '0'+seconds }
-			if (minutes == 0) { miuntes = '00' }
-			else if (minutes < 10) { minutes = '0'+minutes }
+			if (seconds < 10) { seconds = '0'+seconds }
+			if (minutes < 10) { minutes = '0'+minutes }
 
 			var start_time = minutes+':'+seconds;
 
-		} else {
-
-		 	var start_time = "00:00";
-		 }
-
-        $(".digits").each(function () {
-
-            $(this).empty().countdown({
-                image: "static/img/digits.png",
-                format: "mm:ss",
-                startTime: start_time,
-                timerEnd: function () { }
+            $(".digits").each(function () {
+                $(this).empty().countdown({
+                    image: "static/img/digits.png",
+                    format: "mm:ss",
+                    startTime: start_time,
+                    timerEnd: function () {
+                        $('.stats').hide();
+                        if (syncInterval) { clearTimeout(syncInterval); }
+                        socket.emit("finish-game", {"user_id": user_id});
+                    }
+                });
             });
-        });
+		}
+    };
+
+    // Synchronize timer with the server time
+    Cab.prototype.sync = function () {
+        var self = this;
+        socket.emit('get-time-remaining');
+        syncInterval = setTimeout(function () { self.sync(); }, repeat);
+        return this;
     };
 
     // interim function to encapsulate friending events 
@@ -210,16 +225,31 @@
         });
     };
 
+    Cab.prototype.modal = function(bodytext, bodytag, headertext) {
+        var modal_body;
+        if (headertext) {
+            $('#modal-header').empty().text(headertext);
+        }
+        if (bodytext) {
+            modal_body = (bodytag) ? $('<' + bodytag + ' />') : $('<p />');
+            $('#modal-body').empty().append(
+                modal_body.addClass('modal-error-text').text(bodytext)
+            );
+        }
+        $('#modal-dynamic').foundation('reveal', 'open');
+    };
+
     $(document).ready(function () {
 
-        var repeat = 30000;   // data synchronization interval
-
+        window.repeat = 100000;   // data synchronization interval
+        
         window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 
         new Cab()
         	.ignition()
         	.intake()
         	.exhaust()
+            .sync()
         	.smalltalk();
 
     });

@@ -268,12 +268,11 @@ class Game(db.Model):
         self.min_players = min_players
         self.game_minutes = game_minutes
         self.soundcloud_id = soundcloud_id
-
-        if self.started is not None:
-            app.logger.info(self.started)
-            self.countdown(self.finish, True)
-
         self.timer = None
+
+        if self.started is not None and self.finished is None:
+            self.countdown(self.finish, already_started=True)
+
 
     def add_player(self, user):
 
@@ -310,23 +309,52 @@ class Game(db.Model):
     def countdown(self, callback, already_started=False):
         
         def wrapper():
-            self.countdown(callback)
-            callback()
+            if self.finished is None:
+                callback()
         
         if already_started:
-            seconds_remaining = self.started
+            seconds_elapsed = (datetime.datetime.now() - self.started).total_seconds()
+            seconds_remaining = self.game_minutes*60 - seconds_elapsed
         else:
-            seconds_remaining = self.game_minutes * 60
+            seconds_remaining = self.game_minutes*60
 
-        self.timer = threading.Timer(seconds_remaining, wrapper)
-        self.timer.start()
+        if seconds_remaining <= 0:
+            self.timer = None
+            if self.started is not None and self.finished is None:
+                callback()
+        else:
+            self.timer = threading.Timer(seconds_remaining, wrapper)
+            self.timer.start()
 
     def finish(self):
 
         self.timer = None
 
-        print "Game over!"        
+        # Get actual number of playbacks + favorites
+        track = SoundCloud.get_track(self.soundcloud_id)
+        actual = track['playbacks']
 
+        # Calculate winner + how much they won
+        bets = Bet.query.filter(Bet.game_id==self.id).all()
+        diff = []
+        total_amount_bet = Decimal("0")
+        for b in bets:
+            diff.append(abs(float(b.guess) - actual))
+            total_amount_bet += b.amount
+            b.amount = 0
+        
+        best_guess = diff.index(min(diff))
+        winner_id = bets[best_guess].user_id
+        self.winner = User.query.get(winner_id)
+        self.winnings = total_amount_bet
+
+        self.winner.wallet.dyf_balance += self.winnings
+
+        if self.finished is None:
+            self.finished = datetime.datetime.now()
+            db.session.commit()
+        else:
+            db.session.rollback()
 
 
 class SoundCloud(db.Model):
@@ -374,7 +402,7 @@ class SoundCloud(db.Model):
                                     genres=genre,
                                     types="recording,live,remix,original",
                                     sharing="public",
-                                    limit=200)
+                                    limit=100)
             except Exception as exc:
                 print exc
                 continue
@@ -403,7 +431,7 @@ class SoundCloud(db.Model):
             df = df.sort("mojo", ascending=False)
 
             # Insert the ranked tracks into the database
-            df.to_sql("soundcloud", db.engine, if_exists="append", index=False)
+            df.to_sql("sound_cloud", db.engine, if_exists="append", index=False)
             
             # Pause so we don't spam the Soundcloud API
             time.sleep(1)
@@ -411,17 +439,12 @@ class SoundCloud(db.Model):
     @classmethod
     def get_random_track(self):
 
-        return {
-            "id": 158292685,
-            "playbacks": 23333,
-            "favorites": 23432,
-        }
-
         track = self.query.filter(self.played==None).order_by(self.mojo.desc()).first()
-        track.played = True
-
+        if track is None:
+            track = self.query.order_by(self.mojo.desc()).first()
+        else:
+            track.played = True
         db.session.commit()
-
         return {
             "id": track.soundcloud_id,
             "playbacks": track.playbacks,
@@ -433,6 +456,7 @@ class SoundCloud(db.Model):
     def get_track(self, track_id):
 
         track = self.query.filter(self.soundcloud_id==track_id).first()
+
         try:
             client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
                                        client_secret=app.config["SOUNDCLOUD_SECRET"],
@@ -444,6 +468,7 @@ class SoundCloud(db.Model):
             db.session.commit()
         except Exception as exc:
             print exc
+
         return {
             "id": track.soundcloud_id,
             "playbacks": track.playbacks,
