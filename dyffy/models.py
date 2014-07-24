@@ -166,6 +166,12 @@ class User(db.Model, UserMixin):
 
         return friends, others
 
+    def get_open_games(self):
+
+        open_games = Game.query.filter(Game.players.any(id=self.id), Game.finished != None)
+
+        return open_games
+
 
     def create_wallet(self, initial_dyf=100):
 
@@ -254,32 +260,36 @@ class Bet(db.Model):
 class Game(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
     created = db.Column(db.DateTime, default=datetime.datetime.now)
     started = db.Column(db.DateTime)
     finished = db.Column(db.DateTime)
+    winner = db.Column(db.Integer, db.ForeignKey('user.id'))
+
     min_players = db.Column(db.Integer)
     game_minutes = db.Column(db.Integer)
+
 
     bets = db.relationship('Bet', backref='game')
     soundcloud_id = db.Column(db.String(100))
 
-    def __init__(self, min_players, game_minutes, soundcloud_id):
+    def __init__(self, name, min_players, game_minutes, soundcloud_id):
 
+        self.name = name
         self.min_players = min_players
         self.game_minutes = game_minutes
         self.soundcloud_id = soundcloud_id
         self.timer = None
 
-        if self.started is not None and self.finished is None:
-            self.countdown(self.finish, already_started=True)
-
+        # THIS MAKES NO SENSE IN THE MODELS INIT, STARTED WILL ALWAYS BT NONE IN THIS CASE
+        #if self.started is not None and self.finished is None:
+        #    self.countdown(self.finish, already_started=True)
 
     def add_player(self, user):
 
         self.players.append(user)
 
         db.session.commit()
-
 
     def add_bet(self, user_id, guess, bet=10):
 
@@ -290,7 +300,6 @@ class Game(db.Model):
 
         db.session.add(bet)
         db.session.commit()
-
 
     def has_bet(self, user_id):
 
@@ -314,9 +323,9 @@ class Game(db.Model):
         
         if already_started:
             seconds_elapsed = (datetime.datetime.now() - self.started).total_seconds()
-            seconds_remaining = self.game_minutes*60 - seconds_elapsed
+            seconds_remaining = self.game_minutes * 60 - seconds_elapsed
         else:
-            seconds_remaining = self.game_minutes*60
+            seconds_remaining = self.game_minutes * 60
 
         if seconds_remaining <= 0:
             self.timer = None
@@ -329,6 +338,7 @@ class Game(db.Model):
     def finish(self):
 
         self.timer = None
+        self.finished = datetime.datetime.now()
 
         # Get actual number of playbacks + favorites
         track = SoundCloud.get_track(self.soundcloud_id)

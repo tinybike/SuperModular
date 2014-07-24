@@ -12,7 +12,7 @@ from flask_oauthlib.client import OAuth, OAuthException
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug import secure_filename
 
-from dyffy.models import db, User
+from dyffy.models import db, User, Game
 from dyffy.babbage import Jellybeans
 
 import requests
@@ -22,19 +22,30 @@ login_manager = LoginManager(app)
 login_manager.session_protection = "basic"
 login_manager.login_view = "/login"
 
-
 oauth = OAuth(app)
 
 facebook = oauth.remote_app(
     'facebook',
-    consumer_key=app.config['FACEBOOK_APP_ID'],
-    consumer_secret=app.config['FACEBOOK_APP_SECRET'],
-    request_token_params={'scope': 'email'},
-    base_url='https://graph.facebook.com',
-    request_token_url=None,
-    access_token_url='/oauth/access_token',
-    authorize_url='https://www.facebook.com/dialog/oauth'
+    consumer_key = app.config['FACEBOOK_APP_ID'],
+    consumer_secret = app.config['FACEBOOK_APP_SECRET'],
+    request_token_params = {'scope': 'email'},
+    base_url = 'https://graph.facebook.com',
+    request_token_url = None,
+    access_token_url = '/oauth/access_token',
+    authorize_url = 'https://www.facebook.com/dialog/oauth'
 )
+
+# pre-request setup
+@app.before_request
+def before_request():
+
+    g.user = current_user
+
+    if current_user.is_authenticated():
+
+        g.friends, g.others = current_user.get_friends()
+
+        g.open_games = Game.query.filter_by(finished = None)
 
 
 @app.route('/login/facebook')
@@ -42,12 +53,7 @@ def facebook_login():
 
     next = request.args.get('next') or request.host or None
 
-    pass
-    callback = url_for(
-        'facebook_authorized',
-        next = next,
-        _external=True
-    )
+    callback = url_for('facebook_authorized', next = next, _external=True)
 
     return facebook.authorize(callback=callback)
 
@@ -89,35 +95,42 @@ def get_facebook_oauth_token():
     return session.get('oauth_token')
 
 
-
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
 
 
-# pre-request setup
-@app.before_request
-def before_request():
-
-    g.user = current_user
-
-    if current_user.is_authenticated():
-        g.friends, g.others = current_user.get_friends()
-
-
 @app.route('/')
 def home():
 
-    return render_template('home.html')
+    if current_user.is_authenticated():
+
+        recent_games = Game.query.order_by('finished').all()
+
+        return render_template('home.html', recent_games=recent_games)
+
+    else:
+
+        return render_template('home.html')
 
 
-@app.route('/play')
+@app.route('/play/soundcloud')
 @login_required
-def play():
+def soundcloud():
 
     jb = Jellybeans(current_user.id)
 
-    return render_template('play.html', game=jb.game)
+    return render_template('soundcloud.html', game=jb.game)
+
+
+@app.route('/play/greater-dyff')
+@login_required
+def greater_dyff():
+
+    jb = Jellybeans(current_user.id)
+
+    return render_template('greater_dyff.html', game=jb.game)
+
 
 
 @app.route('/register', methods=['GET','POST'])

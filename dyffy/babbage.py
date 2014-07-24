@@ -9,18 +9,12 @@ from decimal import Decimal
 from dyffy import app
 from dyffy.models import db, User, Game, Bet, SoundCloud
 
-sketch = """
-Game map:
-
-    [spectate] --enter--> [lobby] --play--> [ingame] --gameover--> [spectate]
-        |          |       |    ^                    
-     cashout--> [stats]    -bet-|                    
-"""
 
 class Jellybeans(object):
     
-    def __init__(self, user_id, min_players=2, game_minutes=10):
+    def __init__(self, user_id, min_players=1, game_minutes=1):
 
+        self.name = 'soundcloud'
         self.game = Game.query.filter(Game.players.any(id=user_id)).filter_by(finished=None).first()
 
         SoundCloud.update()
@@ -36,9 +30,12 @@ class Jellybeans(object):
                 track = SoundCloud.get_random_track()
                 soundcloud_id = track["id"]
 
-                self.game = Game(min_players=min_players,
-                                 game_minutes=game_minutes,
-                                 soundcloud_id=soundcloud_id)
+                self.game = Game(
+                    min_players = min_players,
+                    game_minutes = game_minutes,
+                    soundcloud_id = soundcloud_id,
+                    name = self.name
+                )
                 db.session.add(self.game)
                 db.session.commit()
 

@@ -174,12 +174,13 @@
 
             $(".digits").each(function () {
                 $(this).empty().countdown({
-                    image: "static/img/digits.png",
+                    image: "/static/img/digits.png",
                     format: "mm:ss",
                     startTime: start_time,
                     timerEnd: function () {
                         $('.stats').hide();
-                        if (syncInterval) { clearTimeout(syncInterval); }
+                        //if (syncInterval) { clearTimeout(syncInterval); }
+                        console.log('game finished');
                         socket.emit("finish-game", {"user_id": user_id});
                     }
                 });
@@ -249,7 +250,6 @@
         	.ignition()
         	.intake()
         	.exhaust()
-            .sync()
         	.smalltalk();
 
     });

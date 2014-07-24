@@ -1,6 +1,0 @@
-requests
-nose
-sqlalchemy
-pandas
-soundcloud
-cdecimal

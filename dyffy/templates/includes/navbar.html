@@ -15,7 +15,7 @@
             <ul class="right">
                {% if g.user.is_authenticated() %}
                <li><a href="{{ url_for('home') }}">Home</a></li>
-               <li><a href="{{ url_for('play') }}">Play</a></li>
+               <li><a href="{{ url_for('soundcloud') }}">Soundcloud</a></li>
                <li class="has-dropdown">
                   <a href="{{ url_for('profile', user_id=g.user.id) }}">
                      {% if g.user.avatar %}<img class="avatar" src="{{ g.user.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}

@@ -18,6 +18,7 @@ from babbage import Jellybeans
 @socketio.on('get-time-remaining', namespace='/socket.io/')
 def get_time_remaining():
     if current_user.is_authenticated():
+        pass
         jb = Jellybeans(current_user.id)
         if jb.game.started is not None:
             emit('time-remaining', {

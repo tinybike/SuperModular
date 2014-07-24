@@ -7,6 +7,17 @@
     </ul>
   </div>
 
+  {% if g.open_games %}
+  <h4 class="panel-legend">open games</h4>
+  <div id="open-games" class="panel">
+    <ul>
+      {% for og in g.open_games %}
+        <li><span class="game" data-game-id="{{ og.id }}">{{ og.name }} / {{ og.finished }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   <h4 class="panel-legend">friends</h4>
   <div id="friends" class="user-list panel">
     <ul>
