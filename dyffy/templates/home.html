@@ -4,10 +4,14 @@
 {% if g.user.is_authenticated() %}
 <div class="home page row ">
 
-  <div class="medium-7 columns">
+    <div class="medium-7 columns">
 
-    <h3>recent games</h3>
-
+        <h3>recent games</h3>
+        <table class="recent-games">
+        {% for game in recent_games %}
+            <tr><td><b class="friendable">{{ game.stats['winner_username'] }}</b> won <b>{{ game.stats['winnings'] }} DYF</b> in a game of {{ game.name|capitalize }}</td></tr>
+        {% endfor %}
+        </table>
   </div>
   
   <div class="medium-4 columns">

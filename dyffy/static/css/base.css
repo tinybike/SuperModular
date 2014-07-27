@@ -45,7 +45,7 @@ h1, h2, h3, h4 {
 	position: relative;
 	top: 7px;
 }
-.sidebar .wallet ul {
+.sidebar ul {
 	margin: 0px;
 	list-style: none;
 	font-size: 1rem;
@@ -53,31 +53,33 @@ h1, h2, h3, h4 {
 
 
 /* play */
-.play .time-remaining {
-	width: 284px;
-	margin: 31px auto 40px auto;
-	font-size: 4rem;
-	height: 90px;
+.game .stats {
+	height: 140px;
 }
-.play h2 {
+.game .time-remaining {
+	width: 284px;
+	margin: 15px auto 10px auto;
+	font-size: 4rem;
+}
+.game h2 {
 	font-size: 1.5rem;
 	margin-bottom: 20px;
 }
-.play h4 {
+.game h4 {
 	font-size: 1.2rem;
 }
-.play #guess {
+.game #guess {
 	font-size: 1.25rem;
 	padding: 1.8rem 0 1.9rem 1rem;
 }
-.play #current-bets {
+.game #current-bets {
 	margin-top: 20px;
 }
-.play #current-bets table {
+.game #current-bets table {
 	width: 100%;
 	font-size: 1.1rem;
 }
-.play #current-bets .bet-amount {
+.game #current-bets .bet-amount {
 	text-align: right;
 }
 
@@ -108,9 +110,13 @@ h1, h2, h3, h4 {
 .home h3 {
 	font-size: 1.3rem;
 	color: #555;
-	border-bottom: 1px solid #999;
 }
-
+.home .recent-games {
+	width: 100%;
+}
+.home .recent-games td {
+	font-size: 1.1rem;
+}
 /* chat-box */
 .chat-box {
 	padding: 0px;

@@ -45,7 +45,8 @@ def before_request():
 
         g.friends, g.others = current_user.get_friends()
 
-        g.open_games = Game.query.filter_by(finished = None)
+        g.open_games = Game.query.filter_by(finished = None, started = None).all()
+        g.my_games = Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()
 
 
 @app.route('/login/facebook')
@@ -105,7 +106,7 @@ def home():
 
     if current_user.is_authenticated():
 
-        recent_games = Game.query.order_by('finished').all()
+        recent_games = Game.query.filter(Game.finished != None).order_by('finished')
 
         return render_template('home.html', recent_games=recent_games)
 
@@ -115,12 +116,13 @@ def home():
 
 
 @app.route('/play/soundcloud')
+@app.route('/play/soundcloud/<int:game_id>')
 @login_required
-def soundcloud():
+def soundcloud(game_id=None):
 
-    jb = Jellybeans(current_user.id)
+    jb = Jellybeans(current_user, game_id=game_id)
 
-    return render_template('soundcloud.html', game=jb.game)
+    return render_template('soundcloud.html', jb=jb)
 
 
 @app.route('/play/greater-dyff')
@@ -129,8 +131,7 @@ def greater_dyff():
 
     jb = Jellybeans(current_user.id)
 
-    return render_template('greater_dyff.html', game=jb.game)
-
+    return render_template('greater_dyff.html', jb=jb)
 
 
 @app.route('/register', methods=['GET','POST'])

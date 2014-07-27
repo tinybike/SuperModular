@@ -16,15 +16,18 @@ from babbage import Jellybeans
 
 
 @socketio.on('get-time-remaining', namespace='/socket.io/')
-def get_time_remaining():
+def get_time_remaining(message):
+
     if current_user.is_authenticated():
-        pass
-        jb = Jellybeans(current_user.id)
-        if jb.game.started is not None:
+
+        jb = Jellybeans(current_user, game_id = message.get('game_id'))
+
+        if jb.game.started:
+
             emit('time-remaining', {
-                'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
                 'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
-                'duration': jb.game.game_minutes,
+                'end_time': datetime.datetime.strftime(jb.game.ends_at, "%Y-%m-%d %H:%M:%S"),
+                'id': jb.game.id
             })
 
 @socketio.on('get-wallet', namespace='/socket.io/')
@@ -44,15 +47,21 @@ def get_wallet_balance():
 
 @socketio.on('finish-game', namespace='/socket.io/')
 def finish_game(message):
-    if current_user.is_authenticated():
-        jb = Jellybeans(current_user.id)
-        if jb.game.started:
-            jb.game.countdown(jb.game.finish, already_started=True)
-            if jb.game.finished:
-                emit('game-over', {
-                    'winner': jb.game.winner.username,
-                    'winnings': str(jb.game.winnings),
-                })
+
+    jb = Jellybeans(current_user, game_id = message.get('game_id'))
+
+    if jb.game.finished:
+
+        emit('game-over', {'id': jb.game.id, 'stats': jb.game.stats })
+
+        emit('balance', {
+            'dyf': str(current_user.wallet.dyf_balance),
+            'btc': str(current_user.wallet.btc_balance)
+        })
+
+    else:
+
+        app.logger.info("game %s hasn't finished yet" % jb.game.id)
 
 
 @socketio.on('friend-request', namespace='/socket.io/')
@@ -164,11 +173,11 @@ def bet(message):
 
     if current_user.is_authenticated():
 
-        jb = Jellybeans(current_user.id)
+        jb = Jellybeans(current_user, game_id=message.get('game_id'))
         
-        if not jb.game.has_bet(current_user.id):
+        if not jb.game or not jb.game.has_bet(current_user.id):
 
-            jb.bet(current_user.id, message['guess'])
+            jb.bet(message['guess'])
 
             emit('balance', {'dyf': str(current_user.wallet.dyf_balance)})
 
@@ -184,15 +193,17 @@ def bet(message):
                 }
             }, broadcast=True)
 
-            emit('no-more-bets')
+            emit('no-more-bets', {'game_id': jb.game.id})
 
             if jb.game.started:
 
                 emit('start-game', {
-                    'start_time': datetime.datetime.strftime(jb.game.started, "%Y-%m-%d %H:%M:%S"),
                     'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
-                    'duration': jb.game.game_minutes})
+                    'end_time': datetime.datetime.strftime(jb.game.ends_at, "%Y-%m-%d %H:%M:%S"),
+                    'id': jb.game.id
+                }, broadcast=True)
 
+                emit('no-more-bets', {'game_id': jb.game.id}, broadcast=True)
 
 
 @socketio.on('connect', namespace='/socket.io/')

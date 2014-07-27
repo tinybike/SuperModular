@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 from dyffy import app
 
-import os, subprocess
+import os, subprocess, urllib
 
+from flask import url_for
 from flask.ext.script import Manager, Command, Option
 
 from dyffy import socketio
@@ -40,11 +41,31 @@ class InitDB(Command):
 
 manager.add_command("initdb", InitDB())
 
+@manager.command
+def listroutes():
+    "list all routes"
+
+    output = []
+
+    for rule in app.url_map.iter_rules():
+
+        options = {}
+        for arg in rule.arguments:
+            options[arg] = "[{0}]".format(arg)
+
+        methods = ','.join(rule.methods)
+        url = url_for(rule.endpoint, **options)
+        line = urllib.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
+        output.append(line)
+    
+    for line in sorted(output):
+        print line
+
 
 @manager.shell
 def make_shell_context():
     """
-    Creates a python REPL with several default imports
+    creates a python REPL with several default imports
     in the context of the app
     """
     return dict(app=app, db=db)

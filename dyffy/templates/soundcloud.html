@@ -1,51 +1,55 @@
 {% extends "base.html" %}
 
 {% block main %}
-<div class="play page row" data-game-id="{{ game.id }}">
+<div class="page game soundcloud row" data-game-id="{{ jb.game.id }}">
 
     <div class="medium-8 columns">
 
         <div class="row">
     
-            {% if game.started %}
+            {% if jb.game.started and not jb.game.finished %}
             <script>
-                window.game_started = '{{ game.started }}';
-                window.game_current_time = '{{ game.current_time }}'
-                window.game_duration = {{ game.game_minutes }};
+                window.game_end_time = '{{ jb.game.ends_at }}';
+                window.game_current_time = '{{ jb.current_time }}';
             </script>
             {% endif %}
-            <div class="small-12 columns stats" {% if not game.started %}style="display: none;"{% endif %}>
-                <div class="time-remaining">
+            <div class="small-12 columns stats" {% if not jb.game.started %}style="display: none;"{% endif %}>
+                <div class="time-remaining"{% if jb.game.finished %} style="display: none"{% endif %}>
                     <div class="cell">
                         <div class="digits"></div>
                     </div>
-                 </div>
+                </div>
+                {% if jb.game.finished %} 
+                <div class="end-stats">
+                    <h2><span class="friendable" data-user-id="{{ jb.game.stats['winner_id'] }}">{{ jb.game.stats['winner_username'] }}</span> won {{ jb.game.stats['winnings'] }} DYF!</h2>
+                    <p>Beginning playbacks: {{ jb.game.stats['track']['playbacks'] }}<br>
+                    Ending playbacks: {{ jb.game.stats['track']['ending_playbacks'] }}</p>
+                </div>
+                {% endif %}
             </div>
-
-            <div class="small-12 columns rules" {% if game.started %}style="display: none;"{% endif %}>
-                <h2>Bet against other players, how many times this track will be played in {{ game.game_minutes }} minute{% if game.game_minutes != 1 %}s{% endif %}</h2>
+            <div class="small-12 columns rules" {% if jb.game.started %}style="display: none;"{% endif %}>
+                <h2>Bet against other players, how many times this track will be played in {{ jb.game_minutes }} minute{% if jb.game_minutes != 1 %}s{% endif %}</h2>
                 <p>Clock will start when enough players have guessed</p>
             </div>
-
             <div class="small-12 columns">
 
-		        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ game.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
+		        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ jb.soundcloud_id }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
 
-                <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
-                    <h4>Current Bets</h4>
+                <div id="current-bets" {% if not jb.game.bets %}style="display:none;"{% endif %}>
+                    <h4>Bets</h4>
                     <table>
-                    {% for bet in game.bets %}
-                        <tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">{{ bet.guess }} more listens</td><td class="bet-amount">{{ bet.amount }} DYF</td></tr>
+                    {% for bet in jb.game.bets %}
+                        <tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">{{ bet.guess }} more listens</td><td class="bet-amount">{{ bet.amount|float }} DYF</td></tr>
                     {% endfor %}
                     </table>
                 </div>
 
-                {% if not game.has_bet(g.user.id) %}
+                {% if not jb.game.has_bet(g.user.id) %}
                 <form id="bet" class="bet" method="POST" action="#">
                     <div class="row collapse">
                         <div class="small-6 columns">
                             <input type="hidden" id="game-id" value="1" />
-                            <input type="text" class="large" id="guess" placeholder="Your guess" />
+                            <input type="text" class="large" id="guess" placeholder="Your guess" required pattern="[1-9]+" />
                         </div>
                         <div class="small-6 columns">
                             <button type="submit" class="button expand large bet-button">Bet 10 DYF</button>

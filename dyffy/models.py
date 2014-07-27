@@ -1,15 +1,18 @@
-import datetime
+import datetime, json
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.types import TypeDecorator, VARCHAR
+
 from flask.ext.login import UserMixin
 
 from decimal import Decimal, ROUND_HALF_EVEN
+import threading
 
 import pandas as pd
 import soundcloud
 import time
-import threading
 
 from dyffy import app
 
@@ -21,6 +24,30 @@ pd.set_option("display.width", 1000)
 pd.options.display.mpl_style = "default"
 
 EightDecimalPoints = db.Numeric(precision=23, scale=8, asdecimal=True)
+
+
+class JSONEncodedDict(TypeDecorator):
+    """Represents an immutable structure as a json-encoded string.
+
+    Usage::
+
+        JSONEncodedDict(255)
+
+    """
+
+    impl = VARCHAR
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
+
 
 # many-to-many tables
 teams = db.Table('teams',
@@ -262,28 +289,27 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     created = db.Column(db.DateTime, default=datetime.datetime.now)
-    started = db.Column(db.DateTime)
-    finished = db.Column(db.DateTime)
-    winner = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    starts_at = db.Column(db.DateTime)
+    started = db.Column(db.Boolean)
+    ends_at = db.Column(db.DateTime)
+    finished = db.Column(db.Boolean)
+
+    rules = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
+    stats = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
 
     min_players = db.Column(db.Integer)
     game_minutes = db.Column(db.Integer)
 
-
     bets = db.relationship('Bet', backref='game')
-    soundcloud_id = db.Column(db.String(100))
 
-    def __init__(self, name, min_players, game_minutes, soundcloud_id):
+    def __init__(self, name, min_players=4, game_minutes=None):
 
         self.name = name
-        self.min_players = min_players
-        self.game_minutes = game_minutes
-        self.soundcloud_id = soundcloud_id
-        self.timer = None
-
-        # THIS MAKES NO SENSE IN THE MODELS INIT, STARTED WILL ALWAYS BT NONE IN THIS CASE
-        #if self.started is not None and self.finished is None:
-        #    self.countdown(self.finish, already_started=True)
+        self.rules = {
+            'min_players': min_players,
+            'game_minutes': game_minutes
+        }
 
     def add_player(self, user):
 
@@ -308,63 +334,38 @@ class Game(db.Model):
         else:
             return False
 
-    def start(self):
+    def start(self, on_finish=None):
 
-        self.countdown(self.finish)
+        if not self.started:
 
-        self.started = datetime.datetime.now()
-        db.session.commit()
+            self.starts_at = datetime.datetime.now()
+            self.started = True
+            
+            duration = None
 
-    def countdown(self, callback, already_started=False):
-        
-        def wrapper():
-            if self.finished is None:
-                callback()
-        
-        if already_started:
-            seconds_elapsed = (datetime.datetime.now() - self.started).total_seconds()
-            seconds_remaining = self.game_minutes * 60 - seconds_elapsed
-        else:
-            seconds_remaining = self.game_minutes * 60
+            # set timer for absolute end time
+            if self.ends_at:
 
-        if seconds_remaining <= 0:
-            self.timer = None
-            if self.started is not None and self.finished is None:
-                callback()
-        else:
-            self.timer = threading.Timer(seconds_remaining, wrapper)
-            self.timer.start()
+                duration = (self.ends_at - self.starts_at).seconds
+
+            # set timer for relative end time
+            elif self.rules.get('game_minutes'):
+
+                self.ends_at = self.starts_at + datetime.timedelta(minutes = self.rules['game_minutes'])
+                duration = self.rules['game_minutes'] * 60
+
+            if duration:
+
+                if not on_finish:
+                    on_finish = self.finish
+
+                # start request independent timer with callback
+                threading.Timer(duration, on_finish).start()
+
 
     def finish(self):
 
-        self.timer = None
-        self.finished = datetime.datetime.now()
-
-        # Get actual number of playbacks + favorites
-        track = SoundCloud.get_track(self.soundcloud_id)
-        actual = track['playbacks']
-
-        # Calculate winner + how much they won
-        bets = Bet.query.filter(Bet.game_id==self.id).all()
-        diff = []
-        total_amount_bet = Decimal("0")
-        for b in bets:
-            diff.append(abs(float(b.guess) - actual))
-            total_amount_bet += b.amount
-            b.amount = 0
-        
-        best_guess = diff.index(min(diff))
-        winner_id = bets[best_guess].user_id
-        self.winner = User.query.get(winner_id)
-        self.winnings = total_amount_bet
-
-        self.winner.wallet.dyf_balance += self.winnings
-
-        if self.finished is None:
-            self.finished = datetime.datetime.now()
-            db.session.commit()
-        else:
-            db.session.rollback()
+        self.finished = True
 
 
 class SoundCloud(db.Model):
@@ -379,6 +380,8 @@ class SoundCloud(db.Model):
     mojo = db.Column(db.Float)
     played = db.Column(db.Boolean)
     updated = db.Column(db.DateTime, default=db.func.transaction_timestamp())
+
+    current_time = datetime.datetime.now()
 
     @classmethod
     def update(self):
@@ -400,21 +403,21 @@ class SoundCloud(db.Model):
 
         for genre in ("rock", ):#, "punk", "dubstep", "techno", "rap"):
 
-            # Create the SoundCloud API client
-            client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
+            try:
+                # Create the SoundCloud API client
+                client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
                                        client_secret=app.config["SOUNDCLOUD_SECRET"],
                                        username=app.config["SOUNDCLOUD_USERNAME"],
                                        password=app.config["SOUNDCLOUD_PASSWORD"])
 
-            # Get audio track list for selected genre from the SoundCloud API
-            try:
+                # Get audio track list for selected genre from the SoundCloud API
                 tracks = client.get("/tracks",
                                     genres=genre,
                                     types="recording,live,remix,original",
                                     sharing="public",
                                     limit=100)
-            except Exception as exc:
-                print exc
+            except Exception, e:
+                app.logger.error(e)
                 continue
 
             # Extract the data into a dataframe
@@ -425,9 +428,10 @@ class SoundCloud(db.Model):
                         continue
                     row = [t.id, str(t.genre), t.user_id, t.duration,
                            t.favoritings_count, t.playback_count]  
-                except Exception as exc: 
-                    print exc
+                except Exception, e: 
+                    app.logger.error(e)
                     continue
+
                 track_data.append(row)
             df = pd.DataFrame(track_data,
                               columns=["soundcloud_id", "genre", "artist",
@@ -468,16 +472,18 @@ class SoundCloud(db.Model):
         track = self.query.filter(self.soundcloud_id==track_id).first()
 
         try:
-            client = soundcloud.Client(client_id=app.config["SOUNDCLOUD_ID"],
-                                       client_secret=app.config["SOUNDCLOUD_SECRET"],
-                                       username=app.config["SOUNDCLOUD_USERNAME"],
-                                       password=app.config["SOUNDCLOUD_PASSWORD"])
+            client = soundcloud.Client(
+                client_id=app.config["SOUNDCLOUD_ID"],
+                client_secret=app.config["SOUNDCLOUD_SECRET"],
+                username=app.config["SOUNDCLOUD_USERNAME"],
+                password=app.config["SOUNDCLOUD_PASSWORD"]
+            )
             updated_track = client.get("/tracks", ids=track_id, limit=1)[0]
             track.favorites = updated_track.favoritings_count
             track.playbacks = updated_track.playbacks_count
             db.session.commit()
-        except Exception as exc:
-            print exc
+        except Exception, e:
+            app.logger.error(e)
 
         return {
             "id": track.soundcloud_id,

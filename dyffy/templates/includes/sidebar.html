@@ -7,17 +7,29 @@
     </ul>
   </div>
 
-  {% if g.open_games %}
-  <h4 class="panel-legend">open games</h4>
-  <div id="open-games" class="panel">
+  {% if g.my_games|length %}
+  <h4 class="panel-legend">my games</h4>
+  <div id="my-games" class="panel">
     <ul>
-      {% for og in g.open_games %}
-        <li><span class="game" data-game-id="{{ og.id }}">{{ og.name }} / {{ og.finished }}</span></li>
+      {% for mg in g.my_games %}
+        <li><a href="/play/{{ mg.name }}/{{ mg.id }}" class="game-listing my-game" data-game-id="{{ mg.id }}">{{ mg.name }} ({{ mg.players.all()|length }}/{{ mg.rules['min_players'] }})</a></li>
       {% endfor %}
     </ul>
   </div>
   {% endif %}
 
+  {% if g.open_games|length %}
+  <h4 class="panel-legend">open games</h4>
+  <div id="open-games" class="panel">
+    <ul>
+      {% for og in g.open_games %}
+        <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }}/{{ og.rules['min_players'] }})</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if g.friends %}
   <h4 class="panel-legend">friends</h4>
   <div id="friends" class="user-list panel">
     <ul>
@@ -32,7 +44,9 @@
       {% endfor %}
     </ul>
   </div>
+  {% endif %}
 
+  {% if g.others %}
   <h4 class="panel-legend">others</h4>
   <div id="others" class="user-list panel">
     <ul>
@@ -41,6 +55,7 @@
       {% endfor %}
     </ul>
   </div>
+  {% endif %}
 
   <h4 class="panel-legend">chat</h4>
   <div class="chat-box panel">

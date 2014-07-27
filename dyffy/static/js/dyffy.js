@@ -8,9 +8,11 @@
     // setup methods called as part of the page load.
     Cab.prototype.ignition = function () {
 
-        if (typeof game_started != 'undefined') {
-        	this.setGameTimer(game_started, game_current_time, game_duration);
+        if (typeof game_end_time != 'undefined') {
+        	this.setGameTimer(game_current_time, game_end_time);
         }
+
+        this.game_id = $('.game[data-game-id]').attr('data-game-id');
 
         socket.emit('get-chats');
 
@@ -22,12 +24,16 @@
 
     	// friend lists
         var self = this;
+
         var request_template = _.template('<li class="request"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status"><a class="accept" data-user-id="<%= u.id %>"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="<%= u.id %>"><i class="fa fa-minus-square"></i></a></div></li>');
 		var pending_template = _.template('<li class="pending"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status">pending</div></li>');
 		var friend_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span></li>');
 		var others_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span class="friendable"><%= u.username %></span></li>');
+        
         socket.on('friend-list', function (message) {
+
             if (message['friends']) {
+
             	var e = $('#friends ul');
             	e.empty();
             	$(message.friends.request).each(function(i, f) {
@@ -42,6 +48,7 @@
             }
 
             if (message['others']) {
+
             	var e = $('#others ul');
             	e.empty();
             	$(message['others']).each(function(i, f) {
@@ -54,25 +61,32 @@
 
         // game over
         socket.on('game-over', function (message) {
-            $('.stats').hide();
-            self.modal(
-                message.winner + " wins " + message.winnings + " DYF!", 'h5', 'Round complete'
-            );
-            $('.bet').show();
-        });
 
-        // incoming time elapsed from server
-        socket.on('time-remaining', function (message) {
-            self.setGameTimer(message.start_time, message.current_time, message.duration)
+            // if we're on this game's page
+            if ($('.game[data-game-id='+message.id+']')) {
+                $('.stats .time-remaining').hide();
+                var template = _.template('<div class="end-stats"><h2><span class="friendable" data-user-id="<%= stats.winner_id %>"><%= stats.winner_username %></span> won <%= stats.winnings %> DYF!</h2><p>Begging playbacks: <%= stats.track.playbacks %><br>Ending playbacks: <%= stats.track.ending_playbacks %></p></div>');
+                $('.stats').append(template(message));
+            }
+
+            // hide any matching game listing elements
+            $('.game-listing[data-game-id='+message.id+']').hide();
+
+            self.modal(
+                message.stats.winner_username + " won " + message.stats.winnings + " DYF!", 'h5', 'Round complete'
+            );
         });
 
         // start game
         socket.on('start-game', function (message) {
 
+            // hide any open game listing elements
+            $('.open-game[data-game-id='+message.id+']').hide();
+
         	$('.rules').hide();
         	$('.stats').show();
 
-        	self.setGameTimer(message.start_time, message.current_time, message.duration);
+        	self.setGameTimer(message.current_time, message.end_time);
         });
 
         // chat
@@ -95,8 +109,13 @@
         });
 
         // no more bets
-        socket.on('no-more-bets', function () {
-        	$('.bet').css('display', 'none');
+        socket.on('no-more-bets', function (message) {
+
+            // if we're on this game's page
+            if ($('.game[data-game-id='+message.game_id+']')) {
+                $('.bet').css('display', 'none');
+            }
+        	
         });
 
         // update balances
@@ -137,52 +156,43 @@
         var self = this;
 
         var guess = $(form).find('#guess').val();
-        var game_id = $(form).find('#game-id').val();
         var amount = 10;
 
-        if (!isNaN(guess)) {
-
-            socket.emit('bet', {
-                amount: amount,
-                guess: guess,
-                game_id: game_id
-            });
-
-        } else {
-
-            error_text = "You must enter a number!";
-            self.modal(error_text, 'h5', 'Betting error');
-        }
+        socket.emit('bet', {
+            amount: amount,
+            guess: guess,
+            game_id: this.game_id
+        });
     };
 
-    Cab.prototype.setGameTimer = function(start_time, current_time, duration) {
+    Cab.prototype.setGameTimer = function(current_time, end_time) {
 
         var self = this;
 
-		var ms_elapsed = new Date(current_time) - new Date(start_time);
+		var seconds_left = (new Date(end_time) - new Date(current_time)) / 1000;
 
-		var total_seconds_left = (duration * 60) - parseInt(ms_elapsed / 1000);
+        console.log(seconds_left);
 
-		if (total_seconds_left > 0) {
+		if (seconds_left > 0) {
 
-			var minutes = parseInt(total_seconds_left / 60);
-			var seconds = total_seconds_left % 60;
+			var minutes = parseInt(seconds_left / 60);
+			var seconds = parseInt(seconds_left % 60);
 			if (seconds < 10) { seconds = '0'+seconds }
 			if (minutes < 10) { minutes = '0'+minutes }
 
-			var start_time = minutes+':'+seconds;
+			var timer_start = minutes+':'+seconds;
 
             $(".digits").each(function () {
                 $(this).empty().countdown({
                     image: "/static/img/digits.png",
                     format: "mm:ss",
-                    startTime: start_time,
-                    timerEnd: function () {
-                        $('.stats').hide();
-                        //if (syncInterval) { clearTimeout(syncInterval); }
-                        console.log('game finished');
-                        socket.emit("finish-game", {"user_id": user_id});
-                    }
+                    startTime: timer_start,
+                    timerEnd: function() { 
+                        $('.stats .time-remaining').hide();
+                        setTimeout(function () {
+                            socket.emit("finish-game", {'game_id': self.game_id});
+                        }, 1500);
+                    } 
                 });
             });
 		}
@@ -190,9 +200,9 @@
 
     // Synchronize timer with the server time
     Cab.prototype.sync = function () {
-        var self = this;
-        socket.emit('get-time-remaining');
-        syncInterval = setTimeout(function () { self.sync(); }, repeat);
+
+        socket.emit('get-time-remaining', {'game_id': this.game_id});
+
         return this;
     };
 
@@ -227,16 +237,20 @@
     };
 
     Cab.prototype.modal = function(bodytext, bodytag, headertext) {
+
         var modal_body;
+
         if (headertext) {
             $('#modal-header').empty().text(headertext);
         }
+
         if (bodytext) {
             modal_body = (bodytag) ? $('<' + bodytag + ' />') : $('<p />');
             $('#modal-body').empty().append(
                 modal_body.addClass('modal-error-text').text(bodytext)
             );
         }
+
         $('#modal-dynamic').foundation('reveal', 'open');
     };
 
@@ -251,7 +265,6 @@
         	.intake()
         	.exhaust()
         	.smalltalk();
-
     });
 
 })(jQuery);
