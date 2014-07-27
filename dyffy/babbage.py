@@ -12,7 +12,7 @@ from dyffy.models import db, User, Game, Bet, SoundCloud
 
 class Jellybeans(object):
     
-    def __init__(self, user, min_players=1, game_minutes=1, name='soundcloud', soundcloud_id=None, game_id=None):
+    def __init__(self, user, min_players=3, game_minutes=1, name='soundcloud', soundcloud_id=None, game_id=None):
 
         self.game = None
         self.current_time = datetime.datetime.now()
