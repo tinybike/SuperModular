@@ -61,7 +61,7 @@ class Jellybeans(object):
         self.game.add_player(self.user)
         self.game.add_bet(user_id=self.user.id, guess=guess, bet=bet)
 
-        if len(self.game.bets) >= self.game.min_players:
+        if len(self.game.bets) >= self.game.rules['min_players']:
 
              self.start()
 
