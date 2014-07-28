@@ -8,7 +8,7 @@ from decimal import *
 from dyffy import app
 from dyffy import socketio
 
-from flask import session, request, escape, url_for, redirect, render_template, g
+from flask import session, request, escape, url_for, redirect, render_template, g, abort
 from flask_oauthlib.client import OAuth, OAuthException
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug import secure_filename
@@ -59,6 +59,9 @@ def before_request():
 
         session['_csrf_token'] = binascii.b2a_hex(os.urandom(15))
 
+    # make csrf form element available
+    app.jinja_env.globals['csrf_token'] = '<input name="_csrf_token" type="hidden" value="%s" />' % session['_csrf_token'] 
+    
     # process csrf token
     if request.method == "POST":
 
@@ -66,9 +69,6 @@ def before_request():
 
         if not token or token != request.form.get('_csrf_token'):
             abort(403)
-
-    # make csrf form element available
-    app.jinja_env.globals['csrf_token'] = '<input name="_csrf_token" type="hidden" value="%s" />' % session['_csrf_token'] 
 
 
 @app.route('/login/facebook')

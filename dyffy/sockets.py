@@ -52,8 +52,6 @@ def finish_game(message):
 
     if jb.game.finished:
 
-        emit('game-over', {'id': jb.game.id, 'stats': jb.game.stats })
-
         emit('balance', {
             'dyf': str(current_user.wallet.dyf_balance),
             'btc': str(current_user.wallet.btc_balance)

@@ -48,6 +48,7 @@
                 <form id="bet" class="bet" method="POST" action="#">
                     <div class="row collapse">
                         <div class="small-6 columns">
+                            {{ csrf_token|safe }}
                             <input type="hidden" id="game-id" value="1" />
                             <input type="text" class="large" id="guess" placeholder="Your guess" required pattern="[1-9]+" />
                         </div>

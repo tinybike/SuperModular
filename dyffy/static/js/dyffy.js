@@ -1,9 +1,9 @@
-dyffy = {
+var dyffy = {
 
     repeat: 100000,   // data synchronization interval
-    socket: io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
+    socket: io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/'),
 
-    init: function () {
+    init: function() {
 
         var self = this;
 
@@ -24,7 +24,7 @@ dyffy = {
 		var friend_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span></li>');
 		var others_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span class="friendable"><%= u.username %></span></li>');
         
-        socket.on('friend-list', function (message) {
+        this.socket.on('friend-list', function (message) {
 
             if (message['friends']) {
 
@@ -54,12 +54,12 @@ dyffy = {
         });
 
         // test socket
-        socket.on('test', function (message) {
+        this.socket.on('test', function (message) {
             console.log('test');
         });
 
         // game over
-        socket.on('game-over', function (message) {
+        this.socket.on('game-over', function (message) {
 
             // if we're on this game's page
             if ($('.game[data-game-id='+message.id+']')) {
@@ -77,7 +77,7 @@ dyffy = {
         });
 
         // start game
-        socket.on('start-game', function (message) {
+        this.socket.on('start-game', function (message) {
 
             // hide any open game listing elements
             $('.open-game[data-game-id='+message.id+']').hide();
@@ -89,7 +89,7 @@ dyffy = {
         });
 
         // chat
-        socket.on('chat', function (message) {
+        this.socket.on('chat', function (message) {
             $.each(message.chat, function(i, c) {
             	var chat = $("<li/>").html('<b>'+c.author+'</b><i>'+c.timestamp+'</i>'+c.comment)
             	$('#chat-box ul').append(chat);
@@ -97,7 +97,7 @@ dyffy = {
         });
 
         // add bet
-        socket.on('add-bet', function (message) {
+        this.socket.on('add-bet', function (message) {
 
         	if (message.game_id == parseInt($('div[data-game-id]').attr('data-game-id'))) {
 
@@ -108,7 +108,7 @@ dyffy = {
         });
 
         // no more bets
-        socket.on('no-more-bets', function (message) {
+        this.socket.on('no-more-bets', function (message) {
 
             // if we're on this game's page
             if ($('.game[data-game-id='+message.game_id+']')) {
@@ -118,7 +118,7 @@ dyffy = {
         });
 
         // update balances
-        socket.on('balance', function (message) {
+        this.socket.on('balance', function (message) {
             $.each(message, function(k, v) {
             	$('#'+k+'-balance .amount').text(v);
             })
@@ -127,7 +127,7 @@ dyffy = {
         // chat
         $('form#broadcast').submit(function (event) {
             event.preventDefault();
-            socket.emit('chat', {
+            self.socket.emit('chat', {
                 data: $('#broadcast_data').val()
             });
             $('#broadcast_data').val('');
@@ -138,7 +138,6 @@ dyffy = {
             event.preventDefault();
             self.bet(this);
         });
-
     },
 
     bet: function(form) {
@@ -146,14 +145,16 @@ dyffy = {
         var guess = $(form).find('#guess').val();
         var amount = 10;
 
-        socket.emit('bet', {
+        this.socket.emit('bet', {
             amount: amount,
             guess: guess,
             game_id: this.game_id
         });
     },
 
-    setGameTimer: function() {
+    setGameTimer: function(current_time, end_time) {
+
+        var self = this;
 
 		var seconds_left = (new Date(end_time) - new Date(current_time)) / 1000;
 
@@ -167,25 +168,29 @@ dyffy = {
 			var timer_start = minutes+':'+seconds;
 
             $(".digits").each(function () {
+
                 $(this).empty().countdown({
+
                     image: "/static/img/digits.png",
                     format: "mm:ss",
                     startTime: timer_start,
                     timerEnd: function() { 
                         $('.stats .time-remaining').hide();
                         setTimeout(function () {
-                            socket.emit("finish-game", {'game_id': self.game_id});
+                            self.socket.emit("finish-game", {'game_id': self.game_id});
                         }, 1500);
                     } 
                 });
             });
 		}
 
-        socket.emit('get-time-remaining', {'game_id': this.game_id});
+        this.socket.emit('get-time-remaining', {'game_id': this.game_id});
 
     },
 
     smalltalk: function() {
+
+        var self = this;
 
         $('.friendable').each(function(i , e) {
 
@@ -193,7 +198,7 @@ dyffy = {
         	$(e).append(a);
         	$(e).on('click', function(event) {
         		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-request', {'user_id': user_id});	
+        		self.socket.emit('friend-request', {'user_id': user_id});	
         	});
 
         });
@@ -201,14 +206,14 @@ dyffy = {
         $('.status .accept').each(function(i , e) {
         	$(e).on('click', function(event) {
         		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-accept', {'user_id': user_id});
+        		self.socket.emit('friend-accept', {'user_id': user_id});
         	});
         });
 
         $('.status .reject').each(function(i , e) {
         	$(e).on('click', function(event) {
         		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-reject', {'user_id': user_id});
+        		self.socket.emit('friend-reject', {'user_id': user_id});
         	});
         });
     },
@@ -230,9 +235,6 @@ dyffy = {
 
         $('#modal-dynamic').foundation('reveal', 'open');
     }
-}    
+};
 
-$(document).ready(function () {
-
-    dyffy.init();
-}
+$(document).ready(function () { dyffy.init() });
