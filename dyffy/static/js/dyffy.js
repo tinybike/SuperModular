@@ -1,30 +1,24 @@
-(function ($) {
+dyffy = {
 
-    function Cab() {
+    repeat: 100000,   // data synchronization interval
+    socket: io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 
-    	return this;
-    }
+    init: function () {
 
-    // setup methods called as part of the page load.
-    Cab.prototype.ignition = function () {
+        var self = this;
 
+        // set game timer if we've detected one
         if (typeof game_end_time != 'undefined') {
         	this.setGameTimer(game_current_time, game_end_time);
         }
 
+        // get game id if we;re on a game page
         this.game_id = $('.game[data-game-id]').attr('data-game-id');
 
-        socket.emit('get-chats');
+        // populate chats
+        this.socket.emit('get-chats');
 
-        return this;
-    };
-
-    // incoming websocket signals
-    Cab.prototype.intake = function () {
-
-    	// friend lists
-        var self = this;
-
+    	// get and render friend lists
         var request_template = _.template('<li class="request"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status"><a class="accept" data-user-id="<%= u.id %>"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="<%= u.id %>"><i class="fa fa-minus-square"></i></a></div></li>');
 		var pending_template = _.template('<li class="pending"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status">pending</div></li>');
 		var friend_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span></li>');
@@ -57,6 +51,11 @@
             }
 
             self.smalltalk();
+        });
+
+        // test socket
+        socket.on('test', function (message) {
+            console.log('test');
         });
 
         // game over
@@ -125,14 +124,6 @@
             })
         });
 
-        return this;
-    };
-
-    // outgoing websocket signals
-    Cab.prototype.exhaust = function () {
-
-        var self = this;
-
         // chat
         $('form#broadcast').submit(function (event) {
             event.preventDefault();
@@ -148,12 +139,9 @@
             self.bet(this);
         });
 
-        return this;
-    };
+    },
 
-    Cab.prototype.bet = function(form) {
-
-        var self = this;
+    bet: function(form) {
 
         var guess = $(form).find('#guess').val();
         var amount = 10;
@@ -163,15 +151,11 @@
             guess: guess,
             game_id: this.game_id
         });
-    };
+    },
 
-    Cab.prototype.setGameTimer = function(current_time, end_time) {
-
-        var self = this;
+    setGameTimer: function() {
 
 		var seconds_left = (new Date(end_time) - new Date(current_time)) / 1000;
-
-        console.log(seconds_left);
 
 		if (seconds_left > 0) {
 
@@ -196,19 +180,12 @@
                 });
             });
 		}
-    };
-
-    // Synchronize timer with the server time
-    Cab.prototype.sync = function () {
 
         socket.emit('get-time-remaining', {'game_id': this.game_id});
 
-        return this;
-    };
+    },
 
-    // interim function to encapsulate friending events 
-    // TODO: backbone this shit
-    Cab.prototype.smalltalk = function() {
+    smalltalk: function() {
 
         $('.friendable').each(function(i , e) {
 
@@ -234,9 +211,9 @@
         		socket.emit('friend-reject', {'user_id': user_id});
         	});
         });
-    };
+    },
 
-    Cab.prototype.modal = function(bodytext, bodytag, headertext) {
+    modal: function(bodytext, bodytag, headertext) {
 
         var modal_body;
 
@@ -252,19 +229,10 @@
         }
 
         $('#modal-dynamic').foundation('reveal', 'open');
-    };
+    }
+}    
 
-    $(document).ready(function () {
+$(document).ready(function () {
 
-        window.repeat = 100000;   // data synchronization interval
-        
-        window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
-
-        new Cab()
-        	.ignition()
-        	.intake()
-        	.exhaust()
-        	.smalltalk();
-    });
-
-})(jQuery);
+    dyffy.init();
+}

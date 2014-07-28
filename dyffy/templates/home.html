@@ -6,17 +6,25 @@
 
     <div class="medium-7 columns">
 
+        <h3>open games</h3>
+        <ul class="open-games">
+          {% for og in g.open_games %}
+            <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} of {{ og.rules['min_players'] }} bets)</a></li>
+          {% endfor %}
+        </ul>
+
         <h3>recent games</h3>
-        <table class="recent-games">
-        {% for game in recent_games %}
-            <tr><td><b class="friendable">{{ game.stats['winner_username'] }}</b> won <b>{{ game.stats['winnings'] }} DYF</b> in a game of {{ game.name|capitalize }}</td></tr>
+        <ul class="recent-games">
+        {% for game in g.recent_games %}
+            <li><b class="friendable">{{ game.stats['winner_username'] }}</b> won <b>{{ game.stats['winnings'] }} DYF</b> in a <a href="/play/{{ game.name }}/{{ game.id }}">game of {{ game.name|capitalize }}</a></li>
         {% endfor %}
-        </table>
-  </div>
+        </ul>
+
+    </div>
   
-  <div class="medium-4 columns">
-    {% include "includes/sidebar.html" %}
-  </div>
+    <div class="medium-4 columns">
+        {% include "includes/sidebar.html" %}
+    </div>
 
 </div>
 

@@ -2,10 +2,11 @@
 
 from __future__ import division
 
-import json, datetime
+import json, datetime, os, binascii
 from decimal import *
 
 from dyffy import app
+from dyffy import socketio
 
 from flask import session, request, escape, url_for, redirect, render_template, g
 from flask_oauthlib.client import OAuth, OAuthException
@@ -40,13 +41,34 @@ facebook = oauth.remote_app(
 def before_request():
 
     g.user = current_user
+    g.sidebar = {
+        'open_games': True
+    }
 
     if current_user.is_authenticated():
 
         g.friends, g.others = current_user.get_friends()
 
+        # get games
+        g.recent_games = Game.query.filter(Game.finished != None).order_by('finished')
         g.open_games = Game.query.filter_by(finished = None, started = None).all()
         g.my_games = Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()
+
+    # generate csrf token if it doesn't exist
+    if '_csrf_token' not in session:
+
+        session['_csrf_token'] = binascii.b2a_hex(os.urandom(15))
+
+    # process csrf token
+    if request.method == "POST":
+
+        token = session.pop('_csrf_token', None)
+
+        if not token or token != request.form.get('_csrf_token'):
+            abort(403)
+
+    # make csrf form element available
+    app.jinja_env.globals['csrf_token'] = '<input name="_csrf_token" type="hidden" value="%s" />' % session['_csrf_token'] 
 
 
 @app.route('/login/facebook')
@@ -106,9 +128,9 @@ def home():
 
     if current_user.is_authenticated():
 
-        recent_games = Game.query.filter(Game.finished != None).order_by('finished')
+        g.sidebar['open_games'] = False
 
-        return render_template('home.html', recent_games=recent_games)
+        return render_template('home.html')
 
     else:
 

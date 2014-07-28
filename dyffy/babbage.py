@@ -7,6 +7,8 @@ import datetime
 from decimal import Decimal
 
 from dyffy import app
+from dyffy import socketio
+
 from dyffy.models import db, User, Game, Bet, SoundCloud
 
 
@@ -106,4 +108,8 @@ class Jellybeans(object):
 
         db.session.add(self.game)
         db.session.commit()
+
+        # broadcast game-over
+        socketio.emit('game-over', {'id': self.game.id, 'stats': self.game.stats }, namespace='/socket.io/')
+
            

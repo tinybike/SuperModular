@@ -20,7 +20,7 @@ def get_time_remaining(message):
 
     if current_user.is_authenticated():
 
-        jb = Jellybeans(current_user, game_id = message.get('game_id'))
+        jb = Jellybeans(current_user, game_id=message.get('game_id'))
 
         if jb.game.started:
 
