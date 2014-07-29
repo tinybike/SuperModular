@@ -83,7 +83,13 @@ h1, h2, h3, h4 {
 .game #current-bets .bet-amount {
 	text-align: right;
 }
-
+.game.parimutuel-dice .end-stats {
+	text-align: center;
+	margin-top: 40px;
+}
+.game.parimutuel-dice .end-stats h2 {
+	font-size: 2.5rem;
+}
 /* splash page */
 .splash {
 	max-width: 800px;

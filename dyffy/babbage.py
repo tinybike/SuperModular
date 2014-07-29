@@ -17,7 +17,7 @@ class Parimutuel(Game):
         self.name = 'parimutuel-dice'
 
         # look for already open game that hasn't finished
-        current_game = Game.query.filter_by(finished=None).first()
+        current_game = Game.query.filter_by(finished=None, name=self.name).first()
 
         if current_game:
 
@@ -105,12 +105,12 @@ class Jellybeans(Game):
     def __init__(self, soundcloud_id=None):
 
         self.name = 'soundcloud'
-        self.game_minutes = 1
+        self.duration = 1
         self.soundcloud_id = soundcloud_id
         self.min_players = 3
 
         # look for already open game that hasn't started
-        current_game = Game.query.filter_by(started=None, finished=None).first()
+        current_game = Game.query.filter_by(started=None, finished=None, name=self.name).first()
 
         if current_game:
 
@@ -133,11 +133,12 @@ class Jellybeans(Game):
     def bet(self, user, guess, amount):
 
         amount = 10
-        # add player and bet
-        self.game.add_player(user)
-        self.game.add_bet(user_id=user.id, guess=guess, amount=amount)
 
-        if len(self.game.bets) >= self.game.rules['min_players']:
+        # add player and bet
+        self.add_player(user)
+        self.add_bet(user_id=user.id, guess=guess, amount=amount)
+
+        if len(self.bets) >= self.rules['min_players']:
 
              self.start()
 
@@ -150,7 +151,7 @@ class Jellybeans(Game):
         self.no_more_bets = True
 
         # get current track count
-        track = SoundCloud.get_track(self.game.stats['soundcloud_id'])
+        track = SoundCloud.get_track(self.stats['soundcloud_id'])
         self.stats['track'] = track
 
         db.session.commit()
@@ -179,8 +180,8 @@ class Jellybeans(Game):
 
         winner.wallet.dyf_balance += winnings
 
-        self.game.stats['track'].update({'ending_playbacks': actual})
-        self.game.stats['winners'] = [{
+        self.stats['track'].update({'ending_playbacks': actual})
+        self.stats['winners'] = [{
             'user_id': winner.id,
             'username': winner.username,
             'winnings': str(winnings)

@@ -102,9 +102,9 @@ var dyffy = {
             // if we're on this game's page
             if ($('.game[data-game-id='+message.id+']')) {
                 $('.stats .time-remaining').hide();
-                if ($('.game.soundcloud')) {
+                if ($('.game.soundcloud').length) {
                     var template = _.template('<div class="end-stats"><h2><span class="friendable" data-user-id="<%= stats.winner_id %>"><%= stats.winner_username %></span> won <%= stats.winnings %> DYF!</h2><p>Begging playbacks: <%= stats.track.playbacks %><br>Ending playbacks: <%= stats.track.ending_playbacks %></p></div>');
-                } else if ($('.game.parimutuel-dice')) {
+                } else if ($('.game.parimutuel-dice').length) {
                     var template = _.template('<div class="end-stats"><h2>A dice roll of <%= stats.result %></h2></div>');
                 }
                 $('.stats').append(template(message));
@@ -114,7 +114,7 @@ var dyffy = {
             $('.game-listing[data-game-id='+message.id+']').hide();
 
             self.modal(
-                message.stats.winner_username + " won " + message.stats.winnings + " DYF!", 'h5', 'Round complete'
+                message.stats.winners[0].username + " won " + message.stats.winners[0].winnings + " DYF!", 'h5', 'Round complete'
             );
         });
 
@@ -143,9 +143,9 @@ var dyffy = {
 
         	if (message.game_id == parseInt($('div[data-game-id]').attr('data-game-id'))) {
 
-                if ($('.game.soundcloud')) {
+                if ($('.game.soundcloud').length) {
 	        	    var template = _.template('<tr><td><b class="friendable" data-user-id="<%= bet.user.id %>"><%= bet.user.username %></b></td><td class="bet-guess"><%= bet.guess %> more listens</td><td class="bet-amount"><%= bet.amount %> DYF</td></tr>');
-	            } else if ($('.game.parimutuel-dice')) {
+	            } else if ($('.game.parimutuel-dice').length) {
                     var template = _.template('<tr><td><b class="friendable" data-user-id="<%= bet.user.id %>"><%= bet.user.username %></b></td><td class="bet-guess">A dice roll of <%= bet.guess %></td><td class="bet-amount"><%= bet.amount %> DYF</td></tr>');
                 }
             	$('#current-bets table').append(template({'bet': message.bet}));
