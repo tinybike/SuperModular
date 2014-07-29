@@ -9,14 +9,16 @@
         <h3>open games</h3>
         <ul class="open-games">
           {% for og in g.open_games %}
-            <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} of {{ og.rules['min_players'] }} bets)</a></li>
+            <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} bet{% if og.players.all()|length != 1 %}s{% endif %})</a></li>
           {% endfor %}
         </ul>
 
         <h3>recent games</h3>
         <ul class="recent-games">
         {% for game in g.recent_games %}
-            <li><b class="friendable">{{ game.stats['winner_username'] }}</b> won <b>{{ game.stats['winnings'] }} DYF</b> in a <a href="/play/{{ game.name }}/{{ game.id }}">game of {{ game.name|capitalize }}</a></li>
+            {% for winner in game.stats['winners'] %}
+            <li><b class="friendable">{{ winner['username'] }}</b> won <b>{{ winner['winnings'] }} DYF</b> in a <a href="/play/{{ game.name }}/{{ game.id }}">game of {{ game.name|capitalize }}</a></li>
+            {% endfor %}
         {% endfor %}
         </ul>
 

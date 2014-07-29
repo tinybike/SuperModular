@@ -7,28 +7,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <link href='//fonts.googleapis.com/css?family=Lato:300,400,700|Comfortaa:300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.min.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}?2" />
 
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link href='//fonts.googleapis.com/css?family=Lato:300,400,700|Comfortaa:300,400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
-
+    <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-migrate-1.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/underscore-min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/modernizr.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/foundation.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
-    <script>
-        {% if g.user.is_authenticated() %}
-        window.login = true;
-        window.user_id = {{ session.user_id }};
-        window.username = "{{ session.user }}";
-        window.wallet = {address: '{{ session.address }}', secret: '{{ session.secret }}'};
-        window.admin = '{{ session.admin }}' === 'True';
-        {% else %}
-        window.login = false;
-        window.admin = false;
-        window.wallet = {};
-        {% endif %}
-    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script src="{{ url_for('static', filename='js/backbone.iosync.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/backbone.iobind.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.countdown.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dyffy.js') }}"></script>
 
     {% block extra_head %}
     {% endblock %}
@@ -74,24 +70,12 @@
         </div>
 
         <div id="modal-dynamic" class="reveal-modal small" data-reveal>
-          <h3 id="modal-header"></h3>
-          <div id="modal-body"></div>
-          <a class="close-reveal-modal">&#215;</a>
+            <h3 id="modal-header"></h3>
+            <div id="modal-body"></div>
+            <a class="close-reveal-modal">&#215;</a>
         </div>
 
         {% block extra_modal %}{% endblock %}
-
-        <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/vendor/jquery-migrate-1.2.1.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/vendor/jquery.lightbox_me.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/vendor/jquery.countdown.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/vendor/underscore-min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/dyffy.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/foundation/foundation.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/foundation/foundation.dropdown.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/foundation/foundation.topbar.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/foundation/foundation.tab.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/foundation/foundation.reveal.js') }}"></script>
 
         <script>
             $(document).foundation();

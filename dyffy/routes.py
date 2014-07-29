@@ -14,7 +14,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, current_user,
 from werkzeug import secure_filename
 
 from dyffy.models import db, User, Game
-from dyffy.babbage import Jellybeans
+from dyffy.babbage import Jellybeans, Parimutuel
 
 import requests
 
@@ -61,7 +61,7 @@ def before_request():
 
     # make csrf form element available
     app.jinja_env.globals['csrf_token'] = '<input name="_csrf_token" type="hidden" value="%s" />' % session['_csrf_token'] 
-    
+
     # process csrf token
     if request.method == "POST":
 
@@ -142,18 +142,31 @@ def home():
 @login_required
 def soundcloud(game_id=None):
 
-    jb = Jellybeans(current_user, game_id=game_id)
+    if game_id:
 
-    return render_template('soundcloud.html', jb=jb)
+        game = Jellybeans.query.get(game_id)
+
+    else:
+
+        game = Jellybeans()
+
+    return render_template('soundcloud.html', game=game)
 
 
-@app.route('/play/greater-dyff')
+@app.route('/play/parimutuel-dice')
+@app.route('/play/parimutuel-dice/<int:game_id>')
 @login_required
-def greater_dyff():
+def parimutuel_dice(game_id=None):
 
-    jb = Jellybeans(current_user.id)
+    if game_id:
 
-    return render_template('greater_dyff.html', jb=jb)
+        game = Parimutuel.query.get(game_id)
+
+    else:
+
+        game = Parimutuel()
+
+    return render_template('parimutuel_dice.html', game=game)
 
 
 @app.route('/register', methods=['GET','POST'])

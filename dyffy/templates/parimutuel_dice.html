@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="page game parimutuel-dice row" data-game-id="{{ game.id }}">
+
+    <div class="medium-8 columns">
+
+        <div class="row">
+    
+            {% if game.started and not game.finished %}
+            <script>
+                window.game_end_time = '{{ game.ends_at }}';
+                window.game_current_time = '{{ game.current_time }}';
+            </script>
+            {% endif %}
+            <div class="small-12 columns stats" {% if not game.started %}style="display: none;"{% endif %}>
+                <div class="time-remaining"{% if game.finished %} style="display: none"{% endif %}>
+                    <div class="cell">
+                        <div class="digits"></div>
+                    </div>
+                </div>
+                {% if game.finished %} 
+                <div class="end-stats">
+                    <h2>A dice roll of {{ game.stats['result'] }}</h2>
+                </div>
+                {% endif %}
+            </div>
+            <div class="small-12 columns rules" {% if game.started %}style="display: none;"{% endif %}>
+                <h2>Wager on a dice roll of one through six</h2>
+                {% if not game.started %}<p>Clock will start when first bet if placed</p>{% endif %}
+            </div>
+            <div class="small-12 columns">
+
+                <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
+                    <h4>Bets</h4>
+                    <table>
+                    {% for bet in game.bets %}
+                        <tr><td><b class="friendable" data-user-id="{{ bet.user.id }}">{{ bet.user.username }}</b></td><td class="bet-guess">A dice roll of {{ bet.guess }}</td><td class="bet-amount">{{ bet.amount|float }} DYF</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
+
+                {% if not game.finished %} 
+                <form id="bet" class="bet" method="POST" action="#">
+                    <div class="row collapse">
+                        <div class="small-3 columns">
+                            {{ csrf_token|safe }}
+                            <input type="hidden" id="game-id" value="1" />
+                            <input type="text" class="large" id="guess" placeholder="Your guess" required pattern="[1-6]" />
+                        </div>
+                        <div class="small-4 columns">
+                            <input type="text" class="large" id="amount" placeholder="DYFs to Wager" required pattern="[0-9]+" />
+                        </div>
+                        <div class="small-5 columns">
+                            <button type="submit" class="button expand large bet-button">Bet</button>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="medium-4 columns">
+        {% include "includes/sidebar.html" %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

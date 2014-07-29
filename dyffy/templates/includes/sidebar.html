@@ -12,7 +12,7 @@
   <div id="my-games" class="panel">
     <ul>
       {% for mg in g.my_games %}
-        <li><a href="/play/{{ mg.name }}/{{ mg.id }}" class="game-listing my-game" data-game-id="{{ mg.id }}">{{ mg.name }} ({{ mg.players.all()|length }} of {{ mg.rules['min_players'] }})</a></li>
+        <li><a href="/play/{{ mg.name }}/{{ mg.id }}" class="game-listing my-game" data-game-id="{{ mg.id }}">{{ mg.name }} ({{ mg.players.all()|length }} bet{% if mg.players.all()|length != 1 %}s{% endif %})</a></li>
       {% endfor %}
     </ul>
   </div>
@@ -23,7 +23,7 @@
   <div id="open-games" class="panel">
     <ul>
       {% for og in g.open_games %}
-        <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} of {{ og.rules['min_players'] }} bets)</a></li>
+        <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} bet{% if og.players.all()|length != 1 %}s{% endif %})</a></li>
       {% endfor %}
     </ul>
   </div>

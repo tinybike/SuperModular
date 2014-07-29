@@ -298,31 +298,30 @@ class Game(db.Model):
     rules = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
     stats = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
 
-    min_players = db.Column(db.Integer)
-    game_minutes = db.Column(db.Integer)
+    no_more_bets = db.Column(db.Boolean)
 
     bets = db.relationship('Bet', backref='game')
 
-    def __init__(self, name, min_players=4, game_minutes=None):
+    current_time = datetime.datetime.now()
+
+    def __init__(self, name, rules={}):
 
         self.name = name
-        self.rules = {
-            'min_players': min_players,
-            'game_minutes': game_minutes
-        }
+        self.rules = rules
+        self.stats = {}
 
     def add_player(self, user):
 
-        self.players.append(user)
+        if not user in self.players:
 
-        db.session.commit()
+            self.players.append(user)
 
-    def add_bet(self, user_id, guess, bet=10):
+    def add_bet(self, user_id, guess, amount):
 
         user = User.query.get(user_id)
-        user.wallet.debit(bet)
+        user.wallet.debit(amount)
 
-        bet = Bet(user_id=user_id, game_id=self.id, amount=bet, guess=guess)
+        bet = Bet(user_id=user_id, game_id=self.id, amount=amount, guess=guess)
 
         db.session.add(bet)
         db.session.commit()
@@ -340,6 +339,7 @@ class Game(db.Model):
 
             self.starts_at = datetime.datetime.now()
             self.started = True
+            db.session.commit()
             
             duration = None
 
@@ -349,10 +349,10 @@ class Game(db.Model):
                 duration = (self.ends_at - self.starts_at).seconds
 
             # set timer for relative end time
-            elif self.rules.get('game_minutes'):
+            elif self.rules.get('duration'):
 
-                self.ends_at = self.starts_at + datetime.timedelta(minutes = self.rules['game_minutes'])
-                duration = self.rules['game_minutes'] * 60
+                self.ends_at = self.starts_at + datetime.timedelta(minutes = self.rules['duration'])
+                duration = self.rules['duration'] * 60
 
             if duration:
 

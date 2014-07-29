@@ -2,17 +2,49 @@
 
 from __future__ import division
 
-import base64, datetime
+import base64, datetime, json, decimal
 
 from dyffy import app
 from dyffy import socketio
 
 from flask import session, escape, g
 from flask.ext.login import current_user, login_user, logout_user
-from flask.ext.socketio import emit
+from flask.ext.socketio import emit, send
 
-from dyffy.models import db, User, Friend, Chat
-from babbage import Jellybeans
+from dyffy.models import db, User, Friend, Chat, Game
+from babbage import Jellybeans, Parimutuel
+
+
+# our serializer
+def serializer(obj):
+
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    elif isinstance(obj, datetime.datetime):
+        return datetime.datetime.strftime(obj, "%Y-%m-%d %H:%M:%S")
+
+
+
+@socketio.on('game:read', namespace='/socket.io/')
+def get_game(data):
+
+    app.logger.info(data)
+    game = Game.query.get(data['id'])
+
+    if game:
+
+        game = {
+            'id': game.id,
+            'name': game.name
+        }
+
+        emit('update-game', game);
+
+
+@socketio.on('open-games:read', namespace='/socket.io/')
+def get_open_games(data):
+
+    pass
 
 
 @socketio.on('get-time-remaining', namespace='/socket.io/')
@@ -20,15 +52,7 @@ def get_time_remaining(message):
 
     if current_user.is_authenticated():
 
-        jb = Jellybeans(current_user, game_id=message.get('game_id'))
-
-        if jb.game.started:
-
-            emit('time-remaining', {
-                'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
-                'end_time': datetime.datetime.strftime(jb.game.ends_at, "%Y-%m-%d %H:%M:%S"),
-                'id': jb.game.id
-            })
+        pass
 
 @socketio.on('get-wallet', namespace='/socket.io/')
 def get_wallet_balance():
@@ -39,18 +63,15 @@ def get_wallet_balance():
 
         if wallet:
 
-            emit('balance', {
-                'dyf': str(wallet.dyf_balance),
-                'btc': str(wallet.btc_balance)
-            })
+            pass
 
 
 @socketio.on('finish-game', namespace='/socket.io/')
 def finish_game(message):
 
-    jb = Jellybeans(current_user, game_id = message.get('game_id'))
+    g = Game.query.get(message['game_id'])
 
-    if jb.game.finished:
+    if g.finished:
 
         emit('balance', {
             'dyf': str(current_user.wallet.dyf_balance),
@@ -59,7 +80,7 @@ def finish_game(message):
 
     else:
 
-        app.logger.info("game %s hasn't finished yet" % jb.game.id)
+        app.logger.info("game %s hasn't finished yet" % g.id)
 
 
 @socketio.on('friend-request', namespace='/socket.io/')
@@ -171,39 +192,47 @@ def bet(message):
 
     if current_user.is_authenticated():
 
-        jb = Jellybeans(current_user, game_id=message.get('game_id'))
+        # TODO: develop better gametype lookup
+        game = Game.query.get(message['game_id'])
+        if game and game.name == 'parimutuel-dice':
+            game = Parimutuel.query.get(message['game_id'])
+        elif game and game.name == 'soundcloud':
+            game = Jellybeans.query.get(message['game_id'])
+        else:
+            app.logger.error('no game found')
+            return
         
-        if not jb.game or not jb.game.has_bet(current_user.id):
+        if not game.no_more_bets:
 
-            jb.bet(message['guess'])
+            guess, amount = game.bet(current_user, message['guess'], message['amount'])
 
             emit('balance', {'dyf': str(current_user.wallet.dyf_balance)})
 
             emit('add-bet', {
-                'game_id': jb.game.id, 
+                'game_id': game.id, 
                 'bet': {
                     'user': {
                         'username': current_user.username,
                         'id': current_user.id
                     }, 
-                'guess': message['guess'], 
-                'amount': 10
+                'guess': guess, 
+                'amount':  amount
                 }
             }, broadcast=True)
 
-            emit('no-more-bets', {'game_id': jb.game.id})
+            if game.no_more_bets:
 
-            if jb.game.started:
+                emit('no-more-bets', {'game_id': game.id}, broadcast=True)
+
+            if game.started:
 
                 emit('start-game', {
                     'current_time': datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"),
-                    'end_time': datetime.datetime.strftime(jb.game.ends_at, "%Y-%m-%d %H:%M:%S"),
-                    'id': jb.game.id
+                    'end_time': datetime.datetime.strftime(game.ends_at, "%Y-%m-%d %H:%M:%S"),
+                    'id': game.id
                 }, broadcast=True)
 
-                emit('no-more-bets', {'game_id': jb.game.id}, broadcast=True)
-
-
+                
 @socketio.on('connect', namespace='/socket.io/')
 def socket_connect():
 
