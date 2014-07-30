@@ -85,7 +85,8 @@ class Parimutuel(Game):
             winner = User.query.get(w['user_id'])
             self.data['winners'].append({
                 'id': winner.id,
-                'username': winner.username
+                'username': winner.username,
+                'winnings': w.amount
             })
             winner.wallet.dyf_balance += w['amount'] * win_ratio
 
