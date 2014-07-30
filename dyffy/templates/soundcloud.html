@@ -21,9 +21,9 @@
                 </div>
                 {% if game.finished %} 
                 <div class="end-stats">
-                    <h2><span class="friendable" data-user-id="{{ game.stats['winners'][0]['user_id'] }}">{{ game.stats['winners'][0]['username'] }}</span> won {{ game.stats['winners'][0]['winnings'] }} DYF!</h2>
-                    <p>Beginning playbacks: {{ game.stats['track']['playbacks'] }}<br>
-                    Ending playbacks: {{ game.stats['track']['ending_playbacks'] }}</p>
+                    <h2><span class="friendable" data-user-id="{{ game.data['winners'][0]['user_id'] }}">{{ game.data['winners'][0]['username'] }}</span> won {{ game.data['winners'][0]['winnings'] }} DYF!</h2>
+                    <p>Beginning playbacks: {{ game.data['track']['playbacks'] }}<br>
+                    Ending playbacks: {{ game.data['track']['ending_playbacks'] }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -33,7 +33,7 @@
             </div>
             <div class="small-12 columns">
 
-		        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ game.stats['soundcloud_id'] }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
+		        <iframe id="track-1" width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ game.data['soundcloud_id'] }}&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=false&amp;show_reposts=false&amp;visual=false&amp;single_active=false"></iframe>
 
                 <div id="current-bets" {% if not game.bets %}style="display:none;"{% endif %}>
                     <h4>Bets</h4>

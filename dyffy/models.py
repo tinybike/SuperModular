@@ -296,7 +296,7 @@ class Game(db.Model):
     finished = db.Column(db.Boolean)
 
     rules = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)), default={})
-    stats = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)), default={})
+    data = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)), default={})
 
     no_more_bets = db.Column(db.Boolean, default=False)
 

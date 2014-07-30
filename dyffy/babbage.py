@@ -78,25 +78,25 @@ class Parimutuel(Game):
         if pools[result - 1]:
             win_ratio = total_amount_bet / pools[result - 1]
         
-        self.stats['winners'] = []
+        self.data['winners'] = []
 
         for w in winners:
 
             winner = User.query.get(w['user_id'])
-            self.stats['winners'].append({
+            self.data['winners'].append({
                 'id': winner.id,
                 'username': winner.username
             })
             winner.wallet.dyf_balance += w['amount'] * win_ratio
 
-        self.stats['result'] = result
+        self.data['result'] = result
         self.no_more_bets = True
 
         db.session.add(self)
         db.session.commit()
 
         # broadcast game-over
-        socketio.emit('game-over', {'id': self.id, 'stats': self.stats }, namespace='/socket.io/')
+        socketio.emit('game-over', {'id': self.id, 'data': self.data }, namespace='/socket.io/')
 
 
 
@@ -113,7 +113,7 @@ class Jellybeans(Game):
         track = SoundCloud.get_random_track()
 
         self.soundcloud_id = track['id']
-        self.stats = {'soundcloud_id': self.soundcloud_id}
+        self.data = {'soundcloud_id': self.soundcloud_id}
         self.rules = {'duration': 1, 'min_players': 3}
 
         db.session.add(self)
@@ -152,8 +152,8 @@ class Jellybeans(Game):
         self.no_more_bets = True
 
         # get current track count
-        track = SoundCloud.get_track(self.stats['soundcloud_id'])
-        self.stats['track'] = track
+        track = SoundCloud.get_track(self.data['soundcloud_id'])
+        self.data['track'] = track
 
         db.session.add(self)
         db.session.commit()
@@ -163,7 +163,7 @@ class Jellybeans(Game):
         super(Parimutuel, self).finish()
 
         # get actual number of playbacks + favorites
-        track = SoundCloud.get_track(self.stats['soundcloud_id'])
+        track = SoundCloud.get_track(self.data['soundcloud_id'])
         actual = track['playbacks']
 
         # calculate winner + how much they won
@@ -182,8 +182,8 @@ class Jellybeans(Game):
 
         winner.wallet.dyf_balance += winnings
 
-        self.stats['track'].update({'ending_playbacks': actual})
-        self.stats['winners'] = [{
+        self.data['track'].update({'ending_playbacks': actual})
+        self.data['winners'] = [{
             'user_id': winner.id,
             'username': winner.username,
             'winnings': str(winnings)
@@ -193,6 +193,6 @@ class Jellybeans(Game):
         db.session.commit()
 
         # broadcast game-over
-        socketio.emit('game-over', {'id': self.id, 'stats': self.stats }, namespace='/socket.io/')
+        socketio.emit('game-over', {'id': self.id, 'data': self.data }, namespace='/socket.io/')
 
            

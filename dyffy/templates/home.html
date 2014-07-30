@@ -16,7 +16,7 @@
         <h3>recent games</h3>
         <ul class="recent-games">
         {% for game in g.recent_games %}
-            {% for winner in game.stats['winners'] %}
+            {% for winner in game.data['winners'] %}
             <li><b class="friendable">{{ winner['username'] }}</b> won <b>{{ winner['winnings'] }} DYF</b> in a <a href="/play/{{ game.name }}/{{ game.id }}">game of {{ game.name|capitalize }}</a></li>
             {% endfor %}
         {% endfor %}

@@ -105,9 +105,9 @@ var dyffy = {
             if ($('.game[data-game-id='+message.id+']')) {
                 $('.stats .time-remaining').hide();
                 if ($('.game.soundcloud').length) {
-                    var template = _.template('<div class="end-stats"><h2><span class="friendable" data-user-id="<%= stats.winner_id %>"><%= stats.winner_username %></span> won <%= stats.winnings %> DYF!</h2><p>Begging playbacks: <%= stats.track.playbacks %><br>Ending playbacks: <%= stats.track.ending_playbacks %></p></div>');
+                    var template = _.template('<div class="end-stats"><h2><span class="friendable" data-user-id="<%= data.winner_id %>"><%= data.winner_username %></span> won <%= data.winnings %> DYF!</h2><p>Begging playbacks: <%= data.track.playbacks %><br>Ending playbacks: <%= data.track.ending_playbacks %></p></div>');
                 } else if ($('.game.parimutuel-dice').length) {
-                    var template = _.template('<div class="end-stats"><h2>A dice roll of <%= stats.result %></h2></div>');
+                    var template = _.template('<div class="end-stats"><h2>A dice roll of <%= data.result %></h2></div>');
                 }
                 $('.stats').append(template(message));
             }
@@ -115,9 +115,9 @@ var dyffy = {
             // hide any matching game listing elements
             $('.game-listing[data-game-id='+message.id+']').hide();
 
-            if (message.stats.winners.length) {
+            if (message.data.winners.length) {
                 self.modal(
-                    message.stats.winners[0].username + " won " + message.stats.winners[0].winnings + " DYF!", 'h5', 'Round complete'
+                    message.data.winners[0].username + " won " + message.data.winners[0].winnings + " DYF!", 'h5', 'Round complete'
                 );
             }
         });
