@@ -13,23 +13,22 @@ class Parimutuel(Game):
 
     def __init__(self):
 
-        self.duration = 1
         self.name = 'parimutuel-dice'
+        self.rules = {'duration': 1}
+
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def find_game(cls):
 
         # look for already open game that hasn't finished
-        current_game = Game.query.filter_by(finished=None, name=self.name).first()
+        current_game = cls.query.filter_by(finished=None, name=cls.name).first()
 
         if current_game:
-
-            self = current_game
-
+            return current_game
         else:
-
-            super(Parimutuel, self).__init__(self.name, rules={'duration': self.duration})
-
-            db.session.add(self)
-            db.session.commit()
-
+            return cls()
 
     def bet(self, user, guess, amount):
 
@@ -41,11 +40,13 @@ class Parimutuel(Game):
 
             self.start()
 
-        return guess, amount
+        return guess, amount  # send back guess and amout so we can control these within the game class
 
     def start(self):
 
         super(Parimutuel, self).start(on_finish=self.finish)
+
+        db.session.add(self)
         db.session.commit()
 
     def finish(self):
@@ -89,6 +90,7 @@ class Parimutuel(Game):
             winner.wallet.dyf_balance += w['amount'] * win_ratio
 
         self.stats['result'] = result
+        self.no_more_bets = True
 
         db.session.add(self)
         db.session.commit()
@@ -101,34 +103,33 @@ class Parimutuel(Game):
 
 
 class Jellybeans(Game):
-    
-    def __init__(self, soundcloud_id=None):
+
+    def __init__(self):
 
         self.name = 'soundcloud'
-        self.duration = 1
-        self.soundcloud_id = soundcloud_id
-        self.min_players = 3
 
-        # look for already open game that hasn't started
-        current_game = Game.query.filter_by(started=None, finished=None, name=self.name).first()
+        # grab a fresh soundcloud track
+        SoundCloud.update()
+        track = SoundCloud.get_random_track()
+
+        self.soundcloud_id = track['id']
+        self.stats = {'soundcloud_id': self.soundcloud_id}
+        self.rules = {'duration': 1, 'min_players': 3}
+
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def find_game(cls):
+
+        # look for already open game that hasn't finished
+        current_game = cls.query.filter_by(finished=None, started=None, name=cls.name).first()
 
         if current_game:
-
-            self = current_game
-
+            return current_game
         else:
+            return cls()
 
-            super(Jellybeans, self).__init__(self.name, rules={'duration': self.duration, 'min_players': self.min_players})
-
-            # grab a fresh soundcloud track
-            SoundCloud.update()
-            track = SoundCloud.get_random_track()
-
-            self.soundcloud_id = track['id']
-            self.stats = {'soundcloud_id': self.soundcloud_id}
-
-            db.session.add(self)
-            db.session.commit()
 
     def bet(self, user, guess, amount):
 
@@ -154,6 +155,7 @@ class Jellybeans(Game):
         track = SoundCloud.get_track(self.stats['soundcloud_id'])
         self.stats['track'] = track
 
+        db.session.add(self)
         db.session.commit()
 
     def finish(self):

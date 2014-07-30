@@ -295,20 +295,12 @@ class Game(db.Model):
     ends_at = db.Column(db.DateTime)
     finished = db.Column(db.Boolean)
 
-    rules = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
-    stats = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)))
+    rules = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)), default={})
+    stats = db.Column(MutableDict.as_mutable(JSONEncodedDict(255)), default={})
 
-    no_more_bets = db.Column(db.Boolean)
+    no_more_bets = db.Column(db.Boolean, default=False)
 
     bets = db.relationship('Bet', backref='game')
-
-    current_time = datetime.datetime.now()
-
-    def __init__(self, name, rules={}):
-
-        self.name = name
-        self.rules = rules
-        self.stats = {}
 
     def add_player(self, user):
 
@@ -339,7 +331,6 @@ class Game(db.Model):
 
             self.starts_at = datetime.datetime.now()
             self.started = True
-            db.session.commit()
             
             duration = None
 

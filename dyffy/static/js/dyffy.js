@@ -45,6 +45,8 @@ var dyffy = {
 
         var self = this;
 
+        this.smalltalk();
+
         // set game timer if we've detected one
         if (typeof game_end_time != 'undefined') {
         	this.setGameTimer(game_current_time, game_end_time);
@@ -113,9 +115,11 @@ var dyffy = {
             // hide any matching game listing elements
             $('.game-listing[data-game-id='+message.id+']').hide();
 
-            self.modal(
-                message.stats.winners[0].username + " won " + message.stats.winners[0].winnings + " DYF!", 'h5', 'Round complete'
-            );
+            if (message.stats.winners.length) {
+                self.modal(
+                    message.stats.winners[0].username + " won " + message.stats.winners[0].winnings + " DYF!", 'h5', 'Round complete'
+                );
+            }
         });
 
         // start game

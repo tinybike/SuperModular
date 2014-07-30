@@ -51,7 +51,7 @@ def before_request():
 
         # get games
         g.recent_games = Game.query.filter(Game.finished != None).order_by('finished')
-        g.open_games = Game.query.filter_by(finished = None, started = None).all()
+        g.open_games = Game.query.filter(Game.no_more_bets != True).all()
         g.my_games = Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()
 
     # generate csrf token if it doesn't exist
@@ -150,7 +150,10 @@ def soundcloud(game_id=None):
 
         game = Jellybeans()
 
-    return render_template('soundcloud.html', game=game)
+        app.logger.info(game.id)
+
+
+    return render_template('soundcloud.html', game=game, current_time=datetime.datetime.now())
 
 
 @app.route('/play/parimutuel-dice')
@@ -164,9 +167,9 @@ def parimutuel_dice(game_id=None):
 
     else:
 
-        game = Parimutuel()
+        game = Parimutuel.find_game()
 
-    return render_template('parimutuel_dice.html', game=game)
+    return render_template('parimutuel_dice.html', game=game, current_time=datetime.datetime.now())
 
 
 @app.route('/register', methods=['GET','POST'])

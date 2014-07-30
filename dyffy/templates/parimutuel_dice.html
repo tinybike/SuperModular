@@ -10,7 +10,7 @@
             {% if game.started and not game.finished %}
             <script>
                 window.game_end_time = '{{ game.ends_at }}';
-                window.game_current_time = '{{ game.current_time }}';
+                window.game_current_time = '{{ current_time }}';
             </script>
             {% endif %}
             <div class="small-12 columns stats" {% if not game.started %}style="display: none;"{% endif %}>
