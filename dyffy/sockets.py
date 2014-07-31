@@ -38,7 +38,9 @@ def get_game(data):
             'name': game.name
         }
 
-        emit('update-game', game);
+        #emit('update-game', game)
+        app.logger.info('sending %s' % game)
+        emit('game:update', game)
 
 
 @socketio.on('open-games:read', namespace='/socket.io/')

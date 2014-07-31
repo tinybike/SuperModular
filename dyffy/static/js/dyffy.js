@@ -1,5 +1,7 @@
 (function () {
 
+    var MyApp = new Backbone.Marionette.Application();
+    
     window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
 
     // individual game model definition
@@ -9,9 +11,12 @@
 
         initialize: function () {
 
-            var self = this;
+            this.ioBind('update', this.updateView, this);
+        },
 
-            socket.on('update-game', function(game) { self.set(game) });
+        updateView: function(data) {
+
+            console.log(data);
         }
 
 
@@ -29,9 +34,13 @@
 
     });
 
+    var game = new Game();
+    game.set('id', 1);
+    game.fetch();
+
     var openGames = new OpenGames();
     openGames.fetch();
-    //console.log(openGames);
+    console.log(openGames);
 
 }());
 

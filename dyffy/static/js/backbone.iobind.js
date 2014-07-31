@@ -87,6 +87,8 @@ Backbone.Model.prototype.ioBind = function (eventName, io, callback, context) {
     }
   };
   this.bind(event.name, event.cbLocal, (context || self));
+  console.log(event.global);
+  console.log(event.cbGlobal);
   io.on(event.global, event.cbGlobal);
   if (!ioEvents[event.name]) {
     ioEvents[event.name] = [event];
