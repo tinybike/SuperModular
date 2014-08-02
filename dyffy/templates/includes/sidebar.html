@@ -1,80 +1,62 @@
-<section class="sidebar">
+<section id="sidebar">
 
-  <h4 class="panel-legend">wallet</h4>
-  <div class="wallet panel">
-    <ul>
-       <li id="dyf-balance"><b>DYF</b> <span class="amount">{{ g.user.wallet.dyf_balance }}</span></li>
-    </ul>
-  </div>
-
-  {% if g.my_games|length %}
-  <h4 class="panel-legend">my games</h4>
-  <div id="my-games" class="panel">
-    <ul>
-      {% for mg in g.my_games %}
-        <li><a href="/play/{{ mg.name }}/{{ mg.id }}" class="game-listing my-game" data-game-id="{{ mg.id }}">{{ mg.name }} ({{ mg.players.all()|length }} bet{% if mg.players.all()|length != 1 %}s{% endif %})</a></li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-
-  {% if g.open_games|length and g.sidebar.open_games %}
-  <h4 class="panel-legend">open games</h4>
-  <div id="open-games" class="panel">
-    <ul>
-      {% for og in g.open_games %}
-        <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} bet{% if og.players.all()|length != 1 %}s{% endif %})</a></li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-
-  {% if g.friends %}
-  <h4 class="panel-legend">friends</h4>
-  <div id="friends" class="user-list panel">
-    <ul>
-      {% for u in g.friends.accept %}
-        <li class="request">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status"><a class="accept" data-user-id="{{ u.id }}"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="{{ u.id }}"><i class="fa fa-minus-square"></i></a></div></li>
-      {% endfor %}
-      {% for u in g.friends.pending %}
-        <li class="pending">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status">pending</div></li>
-      {% endfor %}
-      {% for u in g.friends.friends %}
-        <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span></li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-
-  {% if g.others %}
-  <h4 class="panel-legend">others</h4>
-  <div id="others" class="user-list panel">
-    <ul>
-      {% for u in g.others %}
-        <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span class="friendable" data-user-id="{{ u.id }}">{{ u.username }}</span></li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-
-  <h4 class="panel-legend">chat</h4>
-  <div class="chat-box panel">
-
-    <div id="chat-box">
-      <ul>
-        <li>welcome to dyffy!</li>
-      </ul>
+    <div class="wallet panel">
+        <h4>wallet</h4>
+        <ul>
+        </ul>
     </div>
-  </div>
-  <form id="broadcast" method="POST" action='#'>
-    <div class="row collapse clearfix">
-      <div class="small-10 columns">
-        <input type="text" name="broadcast_data" id="broadcast_data" placeholder="speak your mind">
-      </div>
-      <div class="small-2 columns">
-        <button type="submit" class="button postfix right">send</a>
-      </div>
+
+    <div class="my-games panel">
+        <h4>my games</h4>
+        <ul>
+        </ul>
     </div>
-  </form>
+
+    <div class="open-games panel">
+        <h4>open games</h4>
+        <ul>
+        </ul>
+    </div>
+
+    <div class="friends panel">
+        <h4>friends</h4>
+        <ul class="users">
+            {% for u in g.friends.accept %}
+            <li class="request">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status"><a class="accept" data-user-id="{{ u.id }}"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="{{ u.id }}"><i class="fa fa-minus-square"></i></a></div></li>
+            {% endfor %}
+            {% for u in g.friends.pending %}
+            <li class="pending">{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span><div class="status">pending</div></li>
+            {% endfor %}
+            {% for u in g.friends.friends %}
+            <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span>{{ u.username }}</span></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="others panel">
+        <h4>others</h4>
+        <ul class="users">
+        {% for u in g.others %}
+            <li>{% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" />{% else %}<i class="fa fa-user"></i>{% endif %}<span class="friendable" data-user-id="{{ u.id }}">{{ u.username }}</span></li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="chat panel">
+        <h4>chat</h4>
+        <ul>
+            <li>welcome to dyffy!</li>
+        </ul>
+        <form method="POST">
+            <div class="row collapse clearfix">
+                <div class="small-10 columns">
+                    <input type="text" name="broadcast_data" id="broadcast_data" placeholder="speak your mind">
+                </div>
+                <div class="small-2 columns">
+                    <button type="submit" class="button postfix right">send</a>
+                </div>
+            </div>
+        </form>
+    </div>
 
 </section>

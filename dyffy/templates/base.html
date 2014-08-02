@@ -23,7 +23,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.0.3/backbone.marionette.min.js"></script>
     <script src="{{ url_for('static', filename='js/backbone.iosync.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/backbone.iobind.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/backbone.iobind.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/jquery.countdown.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dyffy.js') }}?2"></script>
 
@@ -38,6 +38,38 @@
 
             {% block main %}{% endblock %}
 
+        <script id="games-template" type="text/html">
+        <% _.each(items, function(g) { %>
+        <li><a href="/play/<%= g.name %>/<%= g.id %>" class="game-listing my-game" data-game-id="<%= g.id %>"><%= g.name %> (<%= g.bets.length %> bet<% if (g.bets.length != 1) { %>s<% }; %>)</a></li>
+        <% }); %>
+        </script>
+
+        <script id="recent-games-template" type="text/html">
+        <% _.each(items, function(g) { %>
+        <% _.each(g.data.winners, function(w) { %>    
+        <li><b class="friendable"><%= w.username %></b> won <%= w.winnings %> DYF in a game of <a href="/play/<%= g.name %>/<%= g.id %>"><%= g.name %></a></li>
+        <% }); %>
+        <% }); %>
+        </script>
+
+
+        <script id="wallet-template" type="text/html">
+        <% _.each(items, function(b) { %>
+        <li class="balance"><b><%= b.currency %></b> <span class="amount"><%= b.balance %></span></li>
+        <% }); %>
+        </script>
+
+        <script id="friends-template" type="text/html">
+        <% _.each(items, function(f) { %>}
+        <li class="<%= f.status %>"><% if (f.avatar) { %><img class="avatar" src="<%= f.avatar %>" /><% } else { %><i class="fa fa-user"></i><% } %><span><%= f.username %></span><div class="status"><a class="accept" data-user-id="<%= f.id %>"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="<%= f.id %>"><i class="fa fa-minus-square"></i></a></div></li>
+        <% }); %>
+        </script>
+
+        <script id="others-template" type="text/html">
+        <% _.each(items, function(o) { %>}
+        <li><% if (o.avatar) { %><img class="avatar" src="<%= o.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span class="friendable" data-user-id="<%= o.id %>"><%= o.username %></span></li>
+        <% }); %>
+        </script>
         </section>
 
         <footer>
@@ -82,6 +114,7 @@
             $(document).foundation();
             document.documentElement.setAttribute('data-useragent', navigator.userAgent);
         </script>
+
 
         {% block extra_script %}
         {% endblock %}

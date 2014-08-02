@@ -1,46 +1,208 @@
 (function () {
 
-    var MyApp = new Backbone.Marionette.Application();
+    Dyffy = new Backbone.Marionette.Application();
     
     window.socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port + '/socket.io/');
+
+    Dyffy.on('start', function(options) {
+
+        this.openGames = new OpenGames;
+        this.myGames = new MyGames;
+        this.recentGames = new RecentGames;
+        this.friends = new Friends;
+        this.others = new Others;
+
+        this.addRegions({
+            main: '#main',
+            sidebar: '#sidebar'
+        });
+
+        // the router is responsible for directing control based on url
+        this.router = Backbone.Marionette.AppRouter.extend({
+
+            routes: {
+                '': 'home'
+            },
+
+            home: function() { 
+
+                new GamesView({
+
+                    el: '.recent-games ul',
+
+                    template: "#recent-games-template",
+
+                    collection: Dyffy.recentGames,
+
+                    collectionEvents: {
+                        'reset': 'render'
+                    }
+                });
+
+                new GamesView({
+
+                    el: '.open-games ul',
+
+                    collection: Dyffy.openGames,
+
+                    collectionEvents: {
+                        'reset': 'render'
+                    }
+                });
+
+                new GamesView({
+
+                    el: '.my-games ul',
+
+                    collection: Dyffy.myGames,
+
+                    collectionEvents: {
+                        'reset': 'render'
+                    }
+                });
+
+                Dyffy.recentGames.fetch();
+                Dyffy.openGames.fetch();
+                Dyffy.myGames.fetch();
+                Dyffy.friends.fetch();
+                Dyffy.others.fetch();
+               
+            }
+        });
+
+        new this.router;
+
+        Backbone.history.start();
+
+    });
+
+    // friends collection
+    var Friends = Backbone.Model.extend({
+
+        initialize: function() {
+ 
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+
+            this.reset(data);
+            console.log(this);
+        },
+
+        urlRoot: 'friends',
+    });
+
+    // others collection
+    var Others = Backbone.Model.extend({
+
+        initialize: function() {
+ 
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+
+            this.reset(data);
+            console.log(this);
+        },
+
+        urlRoot: 'others',
+    });
 
     // individual game model definition
     var Game = Backbone.Model.extend({
 
-        urlRoot: 'game',
-
-        initialize: function () {
-
-            this.ioBind('update', this.updateView, this);
+        initialize: function() {
+ 
+            this.ioBind('update', this.update, this);
         },
 
-        updateView: function(data) {
+        update: function(data) {
 
-            console.log(data);
-        }
+            this.set(data);
+        },
 
-
+        urlRoot: 'game',
     });
 
+    // generic game collection
     var Games = Backbone.Collection.extend({
 
+        initialize: function() {
+
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+
+            this.reset(data);
+            console.log(this.length);
+        },
+
         model: Game
-
     });
 
-    var OpenGames = Games.extend({
+    // specific game collections
+    var OpenGames = Games.extend({ 'url': 'open-games' });
+    var MyGames = Games.extend({ 'url': 'my-games' });
+    var RecentGames = Games.extend({ 'url': 'recent-games' });
 
-        url: 'open-games'
 
+    // views
+    var WalletView = Backbone.Marionette.ItemView.extend({
+
+        el: '.wallet',
+        template: "#wallet-template"
     });
 
-    var game = new Game();
-    game.set('id', 1);
-    game.fetch();
+    var GamesView = Backbone.Marionette.ItemView.extend({
 
-    var openGames = new OpenGames();
-    openGames.fetch();
-    console.log(openGames);
+        template: "#games-template",
+
+        test: function() {
+            console.log(this.collection);
+        }
+    });
+
+    var FriendsView = Backbone.Marionette.CollectionView.extend({
+
+        el: '.friends',
+        template: "#friends-template"
+    });
+
+    var OthersView = Backbone.Marionette.CollectionView.extend({
+
+        el: '.others',
+        template: "#others-template"
+    });
+
+    //var ChatView = Backbone.Marionette.ItemView.extend({
+    //    template: "#chat-template"
+    //});
+
+    var SidebarLayout = Marionette.LayoutView.extend({
+
+        regions: {
+            friends: '.friends',
+            others: '.others',
+            chat: '.chat',
+            myGames: '.my-games',
+            recentGames: '.recent-games',
+            openGames: '.open-games',
+            wallet: '.wallet'
+        }    
+    });
+
+    var HomeLayout = Marionette.LayoutView.extend({
+
+        regions: {
+            recentGames: '.recent-games',
+            openGames: '.open-games'
+        }    
+    });
+
+    $(document).ready(function () { Dyffy.start() });
 
 }());
 

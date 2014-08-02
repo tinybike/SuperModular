@@ -15,46 +15,57 @@ from dyffy.models import db, User, Friend, Chat, Game
 from babbage import Jellybeans, Parimutuel
 
 
-# our serializer
-def serializer(obj):
+# flattens a model for json output
+def to_dict(model):
 
-    if isinstance(obj, decimal.Decimal):
-        return float(obj)
-    elif isinstance(obj, datetime.datetime):
-        return datetime.datetime.strftime(obj, "%Y-%m-%d %H:%M:%S")
+    d = dict((prop, getattr(model, prop)) for prop in model.__table__.columns.keys())
+    if hasattr(model, 'bets'):
+        d['bets'] = [to_dict(bet) for bet in model.bets]
+        app.logger.info(d['bets'])
 
-
+    return d
 
 @socketio.on('game:read', namespace='/socket.io/')
 def get_game(data):
 
     app.logger.info(data)
     game = Game.query.get(data['id'])
+    game.bets.all();
 
     if game:
-
-        game = {
-            'id': game.id,
-            'name': game.name
-        }
-
-        #emit('update-game', game)
-        app.logger.info('sending %s' % game)
-        emit('game:update', game)
+        
+        emit('game:update', to_dict(game))
 
 
 @socketio.on('open-games:read', namespace='/socket.io/')
 def get_open_games(data):
 
-    pass
+    open_games = [to_dict(game) for game in Game.query.filter(Game.no_more_bets != True).all()]
+
+    app.logger.info(open_games)
+
+    emit('open-games:update', open_games)
 
 
-@socketio.on('get-time-remaining', namespace='/socket.io/')
-def get_time_remaining(message):
+@socketio.on('my-games:read', namespace='/socket.io/')
+def get_my_games(data):
 
-    if current_user.is_authenticated():
+    my_games = [to_dict(game) for game in Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()]
 
-        pass
+    app.logger.info(my_games)
+
+    emit('my-games:update', my_games)
+
+
+@socketio.on('recent-games:read', namespace='/socket.io/')
+def get_recent_games(data):
+
+    recent_games = [to_dict(game) for game in Game.query.filter(Game.finished != None).order_by('finished').all()]
+
+    app.logger.info(recent_games)
+
+    emit('recent-games:update', recent_games)
+
 
 @socketio.on('get-wallet', namespace='/socket.io/')
 def get_wallet_balance():

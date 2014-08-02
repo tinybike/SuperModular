@@ -35,17 +35,21 @@ h1, h2, h3, h4 {
 }
 
 /* sidebar */
-.sidebar .panel {
+#sidebar .panel {
+	position: relative;
 	padding: 10px;
+	margin-top: 10px;
+	margin-bottom: 35px;
 }
-.sidebar h4.panel-legend {
+#sidebar h4 {
+	position: absolute;
+	top: -20px;
+	left: -1px;
 	color: #999;
 	font-size: 1.2rem;
 	margin: 0px 0px 0px 0px;
-	position: relative;
-	top: 7px;
 }
-.sidebar ul {
+#sidebar ul {
 	margin: 0px;
 	list-style: none;
 	font-size: 1rem;
@@ -90,6 +94,7 @@ h1, h2, h3, h4 {
 .game.parimutuel-dice .end-stats h2 {
 	font-size: 2.5rem;
 }
+
 /* splash page */
 .splash {
 	max-width: 800px;
@@ -124,28 +129,32 @@ h1, h2, h3, h4 {
 	margin: 0px 0px 20px 0px;
 	font-size: 1.1rem;
 }
-/* chat-box */
-.chat-box {
+/* chat */
+.chat {
 	padding: 0px;
 	margin-bottom: 0px;
 	min-height: 200px;
 	background-color: #fff;
 }
-#chat-box ul {
+.chat ul {
 	margin: 0px;
 	list-style: none;
 	font-size: 0.8rem;
 }
-#chat-box ul li b {
+.chat ul li b {
 	padding-right: 5px;
 }
-#chat-box ul li i {
+.chat ul li i {
 	display: none;
 }
-#broadcast input {
+.chat form {
+	position: absolute;
+	bottom: 0px;
+	border-top: 1px solid #eee;
+}
+.chat input {
 	box-shadow: none;
-	border-top: none;
-	border-right: none;
+	border: none;
 }
 
 /* reg and login modals and pages */
@@ -161,39 +170,39 @@ h1, h2, h3, h4 {
 	margin-bottom: 0px;
 }
 
-.user-list ul {
+ul.users {
 	list-style: none;
 	margin: 0px;
 	width: 100%;
 }
-.user-list li.pending {
+ul.users li.pending {
 	color: #777;
 	font-style: italic;
 }
-.user-list li .status {
+ul.users li .status {
 	float: right;
 	font-size: 0.8rem;
 	position: relative;
 	top: 3px;
 }
-.user-list li.request {
+ul.users li.request {
 	color: #777;
 }
-.user-list li.request .status {
+ul.users li.request .status {
 	font-size: 1.2rem;
 	top: -2px;
 }
-.user-list li.request a.accept {
+ul.users li.request a.accept {
 	color: green;
 	margin-right: 5px;
 	display: inline-block;
 }
-.user-list li.request a.reject {
+ul.users li.request a.reject {
 	color: red;
 }
 
-.user-list img,
-.user-list .fa-user {
+ul.users img,
+ul.users .fa-user {
 	width: 20px;
 	height: 20px;
 	margin-right: 8px;

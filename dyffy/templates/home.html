@@ -2,25 +2,21 @@
 
 {% block main %}
 {% if g.user.is_authenticated() %}
-<div class="home page row ">
+<div class="home page row">
 
     <div class="medium-7 columns">
 
-        <h3>open games</h3>
-        <ul class="open-games">
-          {% for og in g.open_games %}
-            <li><a href="/play/{{ og.name }}/{{ og.id }}"class="game-listing open-game" data-game-id="{{ og.id }}">{{ og.name }} ({{ og.players.all()|length }} bet{% if og.players.all()|length != 1 %}s{% endif %})</a></li>
-          {% endfor %}
-        </ul>
+        <div class="open-games">
+            <h3>open games</h3>
+            <ul>
+            </ul>
+        </div>
 
-        <h3>recent games</h3>
-        <ul class="recent-games">
-        {% for game in g.recent_games %}
-            {% for winner in game.data['winners'] %}
-            <li><b class="friendable">{{ winner['username'] }}</b> won <b>{{ winner['winnings'] }} DYF</b> in a <a href="/play/{{ game.name }}/{{ game.id }}">game of {{ game.name|capitalize }}</a></li>
-            {% endfor %}
-        {% endfor %}
-        </ul>
+        <div class="recent-games">
+            <h3>recent games</h3>
+            <ul>
+            </ul>
+        </div>
 
     </div>
   
@@ -29,13 +25,12 @@
     </div>
 
 </div>
+ 
 
 {% else %}
 
 <div class="splash">
       <img src="{{ url_for('static', filename='img/dyffy_splash_logo.gif') }}">
-      <!--<h1><i class="fa fa-arrow-up"></i><span>dyffy</span><i class="fa fa-arrow-down"></i></h1>
-      <div class="about">Phasellus nulla velit, laoreet eget adipiscing vitae, euismod non nisl.</div>-->
 </div>
 
 {% endif %} 
