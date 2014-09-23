@@ -169,7 +169,7 @@ class User(db.Model, UserMixin):
 
     def get_friends(self, others_limit=50):
 
-        friends = {'pending': [], 'accept':[], 'friends':[]}
+        friends = []
         ids = [self.id]  # hack for others query
 
         for u in Friend.query.filter((Friend.user1_id == self.id) | (Friend.user2_id == self.id)).all():
@@ -183,7 +183,7 @@ class User(db.Model, UserMixin):
                 state = 'accept' if not u.status else 'friends'
                 ids.append(u.user1_id)
 
-            friends[state].append({'username': f.username, 'id': f.id, 'avatar': f.avatar})
+            friends.append({'username': f.username, 'id': f.id, 'avatar': f.avatar, 'status': state})
 
         # get others
         others = []

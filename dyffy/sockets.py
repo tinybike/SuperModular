@@ -25,7 +25,7 @@ def to_dict(model):
     return d
 
 @socketio.on('game:read', namespace='/socket.io/')
-def get_game(data):
+def game(data):
 
     app.logger.info(data)
     game = Game.query.get(data['id'])
@@ -37,7 +37,7 @@ def get_game(data):
 
 
 @socketio.on('open-games:read', namespace='/socket.io/')
-def get_open_games(data):
+def open_games(data):
 
     open_games = [to_dict(game) for game in Game.query.filter(Game.no_more_bets != True).all()]
 
@@ -45,7 +45,7 @@ def get_open_games(data):
 
 
 @socketio.on('my-games:read', namespace='/socket.io/')
-def get_my_games(data):
+def my_games(data):
 
     if current_user.is_authenticated():
 
@@ -57,7 +57,7 @@ def get_my_games(data):
 
 
 @socketio.on('recent-games:read', namespace='/socket.io/')
-def get_recent_games(data):
+def recent_games(data):
 
     recent_games = [to_dict(game) for game in Game.query.filter(Game.finished != None).order_by('finished').all()]
 
@@ -67,7 +67,7 @@ def get_recent_games(data):
 
 
 @socketio.on('wallet:read', namespace='/socket.io/')
-def get_wallet_balance(data):
+def wallet(data):
 
     if current_user.is_authenticated():
 
@@ -78,26 +78,48 @@ def get_wallet_balance(data):
 
 
 @socketio.on('finish-game', namespace='/socket.io/')
-def finish_game(message):
+def finish_game(data):
 
-    g = Game.query.get(message['game_id'])
+    g = Game.query.get(data['game_id'])
 
     if g.finished:
 
-        emit('balance', {
-            'dyf': str(current_user.wallet.dyf_balance),
-            'btc': str(current_user.wallet.btc_balance)
-        })
+        emit('wallet:update', [
+            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)},
+            {'currency': 'btc', 'balance': str(current_user.wallet.btc_balance)}
+        ])
 
     else:
 
         app.logger.info("game %s hasn't finished yet" % g.id)
 
 
-@socketio.on('friend-request', namespace='/socket.io/')
-def friend_request(message):
+@socketio.on('friends:read', namespace='/socket.io/')
+def friends(data):
 
-    if current_user.is_authenticated() and current_user.request_friend(message['user_id']):
+    if current_user.is_authenticated():
+
+        friends, others = current_user.get_friends()
+
+        app.logger.info(friends)
+        
+        emit('friends:update', friends)
+
+
+@socketio.on('others:read', namespace='/socket.io/')
+def others(data):
+
+    if current_user.is_authenticated():
+
+        friends, others = current_user.get_friends()
+
+        emit('others:update', others)
+
+
+@socketio.on('friend-request', namespace='/socket.io/')
+def friend_request(data):
+
+    if current_user.is_authenticated() and current_user.request_friend(data['user_id']):
 
         friends, others = current_user.get_friends()
         response = {'friends': friends, 'others': others}
@@ -110,11 +132,11 @@ def friend_request(message):
 
 
 @socketio.on('friend-accept', namespace='/socket.io/')
-def friend_accept(message):
+def friend_accept(data):
 
     if current_user.is_authenticated():
 
-        friend = Friend.query.filter_by(user1_id=message['user_id'], user2_id=current_user.id).first()
+        friend = Friend.query.filter_by(user1_id=data['user_id'], user2_id=current_user.id).first()
 
         if friend:
 
@@ -133,11 +155,11 @@ def friend_accept(message):
 
 
 @socketio.on('friend-reject', namespace='/socket.io/')
-def friend_reject(message):
+def friend_reject(data):
 
     if current_user.is_authenticated():
 
-        friend = Friend.query.filter_by(user1_id=message['user_id'], user2_id=current_user.id).first()
+        friend = Friend.query.filter_by(user1_id=data['user_id'], user2_id=current_user.id).first()
 
         if friend:
 
@@ -155,18 +177,8 @@ def friend_reject(message):
         emit('friend-list', response)
 
 
-@socketio.on('get-friends', namespace='/socket.io/')
-def get_friends():
-
-    if current_user.is_authenticated():
-
-        friends, others = current_user.get_friends()
-
-        emit('friend-list', {'friends': friends, 'others': others})
-
-
 @socketio.on('get-chats', namespace='/socket.io/')
-def get_chats():
+def get_chats(data):
 
     if current_user.is_authenticated():
 
@@ -184,11 +196,11 @@ def get_chats():
 
 
 @socketio.on('chat', namespace='/socket.io/')
-def chat(message):
+def chat(data):
 
     if current_user.is_authenticated():
 
-        c = Chat(author=current_user.username, comment=message['data'], timestamp=datetime.datetime.now())
+        c = Chat(author=current_user.username, comment=data['data'], timestamp=datetime.datetime.now())
 
         db.session.add(c)
         db.session.commit()
@@ -199,23 +211,23 @@ def chat(message):
 
 
 @socketio.on('bet', namespace='/socket.io/')
-def bet(message):
+def bet(data):
 
     if current_user.is_authenticated():
 
         # TODO: develop better gametype lookup
-        game = Game.query.get(message['game_id'])
+        game = Game.query.get(data['game_id'])
         if game and game.name == 'parimutuel-dice':
-            game = Parimutuel.query.get(message['game_id'])
+            game = Parimutuel.query.get(data['game_id'])
         elif game and game.name == 'soundcloud':
-            game = Jellybeans.query.get(message['game_id'])
+            game = Jellybeans.query.get(data['game_id'])
         else:
             app.logger.error('no game found')
             return
         
         if not game.no_more_bets:
 
-            guess, amount = game.bet(current_user, message['guess'], message['amount'])
+            guess, amount = game.bet(current_user, data['guess'], data['amount'])
 
             emit('balance', {'dyf': str(current_user.wallet.dyf_balance)})
 

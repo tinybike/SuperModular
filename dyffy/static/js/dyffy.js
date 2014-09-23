@@ -28,48 +28,16 @@
             home: function() { 
 
                 new GamesView({
-
                     el: '.recent-games ul',
-
                     template: "#recent-games-template",
-
                     collection: Dyffy.recentGames,
-
-                    collectionEvents: {
-                        'reset': 'render'
-                    }
                 });
 
-                new GamesView({
-
-                    el: '.open-games ul',
-
-                    collection: Dyffy.openGames,
-
-                    collectionEvents: {
-                        'reset': 'render'
-                    }
-                });
-
-                new GamesView({
-
-                    el: '.my-games ul',
-
-                    collection: Dyffy.myGames,
-
-                    collectionEvents: {
-                        'reset': 'render'
-                    }
-                });
-
-                new WalletView({
-
-                    collection: Dyffy.wallet,
-
-                    collectionEvents: {
-                        'reset': 'render'
-                    }
-                });
+                new GamesView({ el: '.open-games ul', collection: Dyffy.openGames });
+                new GamesView({ el: '.my-games ul', collection: Dyffy.myGames });
+                new WalletView({ collection: Dyffy.wallet });
+                new FriendsView({ collection: Dyffy.friends });
+                new OthersView({ collection: Dyffy.others });
 
                 Dyffy.recentGames.fetch();
                 Dyffy.openGames.fetch();
@@ -81,10 +49,9 @@
         });
 
         new this.router;
-
         Backbone.history.start();
-
     });
+
 
     // balance model
     var Balance = Backbone.Model.extend({
@@ -112,7 +79,6 @@
 
         update: function(data) {
             this.reset(data);
-            console.log(this.length);
         }
     });
 
@@ -164,12 +130,10 @@
     var Game = Backbone.Model.extend({
 
         initialize: function() {
- 
             this.ioBind('update', this.update, this);
         },
 
         update: function(data) {
-
             this.set(data);
         },
 
@@ -186,9 +150,7 @@
         },
 
         update: function(data) {
-
             this.reset(data);
-            console.log(this.length);
         }
     });
 
@@ -202,24 +164,36 @@
     var WalletView = Backbone.Marionette.ItemView.extend({
 
         el: '.wallet ul',
-        template: "#wallet-template"
+        template: "#wallet-template",
+        collectionEvents: {
+            'reset': 'render'
+        }
     });
 
     var GamesView = Backbone.Marionette.ItemView.extend({
 
         template: "#games-template",
+        collectionEvents: {
+            'reset': 'render'
+        }
     });
 
-    var FriendsView = Backbone.Marionette.CollectionView.extend({
+    var FriendsView = Backbone.Marionette.ItemView.extend({
 
-        el: '.friends',
-        template: "#friends-template"
+        el: '.friends ul',
+        template: "#friends-template",
+        collectionEvents: {
+            'reset': 'render'
+        }
     });
 
-    var OthersView = Backbone.Marionette.CollectionView.extend({
+    var OthersView = Backbone.Marionette.ItemView.extend({
 
-        el: '.others',
-        template: "#others-template"
+        el: '.others ul',
+        template: "#others-template",
+        collectionEvents: {
+            'reset': 'render'
+        }
     });
 
     //var ChatView = Backbone.Marionette.ItemView.extend({
