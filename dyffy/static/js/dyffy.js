@@ -11,6 +11,7 @@
         this.recentGames = new RecentGames;
         this.friends = new Friends;
         this.others = new Others;
+        this.wallet = new Wallet;
 
         this.addRegions({
             main: '#main',
@@ -61,12 +62,21 @@
                     }
                 });
 
+                new WalletView({
+
+                    collection: Dyffy.wallet,
+
+                    collectionEvents: {
+                        'reset': 'render'
+                    }
+                });
+
                 Dyffy.recentGames.fetch();
                 Dyffy.openGames.fetch();
                 Dyffy.myGames.fetch();
                 Dyffy.friends.fetch();
                 Dyffy.others.fetch();
-               
+                Dyffy.wallet.fetch();
             }
         });
 
@@ -76,38 +86,78 @@
 
     });
 
-    // friends collection
-    var Friends = Backbone.Model.extend({
+    // balance model
+    var Balance = Backbone.Model.extend({
 
         initialize: function() {
- 
             this.ioBind('update', this.update, this);
         },
 
         update: function(data) {
-
-            this.reset(data);
-            console.log(this);
+            this.set(data);
         },
 
-        urlRoot: 'friends',
+        urlRoot: 'balance',
+    });
+
+    // wallet collection
+    var Wallet = Backbone.Collection.extend({
+
+        model: Balance,
+        url: 'wallet',
+
+        initialize: function() {
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+            this.reset(data);
+            console.log(this.length);
+        }
+    });
+
+    // user model
+    var User = Backbone.Model.extend({
+
+        urlRoot: 'user',
+
+        initialize: function() {
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+            this.set(data);
+        }
+    });
+
+    // friends collection
+    var Friends = Backbone.Collection.extend({
+
+        model: User,
+        url: 'friends',
+
+        initialize: function() {
+            this.ioBind('update', this.update, this);
+        },
+
+        update: function(data) {
+            this.reset(data);
+        }
     });
 
     // others collection
-    var Others = Backbone.Model.extend({
+    var Others = Backbone.Collection.extend({
+
+        model: User,
+        url: 'others',
 
         initialize: function() {
- 
             this.ioBind('update', this.update, this);
         },
 
         update: function(data) {
-
             this.reset(data);
-            console.log(this);
-        },
-
-        urlRoot: 'others',
+        }
     });
 
     // individual game model definition
@@ -129,8 +179,9 @@
     // generic game collection
     var Games = Backbone.Collection.extend({
 
-        initialize: function() {
+        model: Game,
 
+        initialize: function() {
             this.ioBind('update', this.update, this);
         },
 
@@ -138,9 +189,7 @@
 
             this.reset(data);
             console.log(this.length);
-        },
-
-        model: Game
+        }
     });
 
     // specific game collections
@@ -152,17 +201,13 @@
     // views
     var WalletView = Backbone.Marionette.ItemView.extend({
 
-        el: '.wallet',
+        el: '.wallet ul',
         template: "#wallet-template"
     });
 
     var GamesView = Backbone.Marionette.ItemView.extend({
 
         template: "#games-template",
-
-        test: function() {
-            console.log(this.collection);
-        }
     });
 
     var FriendsView = Backbone.Marionette.CollectionView.extend({
@@ -458,4 +503,4 @@ var dyffy = {
     }
 };
 
-$(document).ready(function () { dyffy.init() });
+//$(document).ready(function () { dyffy.init() });

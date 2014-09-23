@@ -21,7 +21,6 @@ def to_dict(model):
     d = dict((prop, getattr(model, prop)) for prop in model.__table__.columns.keys())
     if hasattr(model, 'bets'):
         d['bets'] = [to_dict(bet) for bet in model.bets]
-        app.logger.info(d['bets'])
 
     return d
 
@@ -42,19 +41,19 @@ def get_open_games(data):
 
     open_games = [to_dict(game) for game in Game.query.filter(Game.no_more_bets != True).all()]
 
-    app.logger.info(open_games)
-
     emit('open-games:update', open_games)
 
 
 @socketio.on('my-games:read', namespace='/socket.io/')
 def get_my_games(data):
 
-    my_games = [to_dict(game) for game in Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()]
+    if current_user.is_authenticated():
 
-    app.logger.info(my_games)
+        my_games = [to_dict(game) for game in Game.query.filter(Game.players.any(id=current_user.id)).filter_by(finished=None).all()]
 
-    emit('my-games:update', my_games)
+        app.logger.info(my_games)
+
+        emit('my-games:update', my_games)
 
 
 @socketio.on('recent-games:read', namespace='/socket.io/')
@@ -67,16 +66,15 @@ def get_recent_games(data):
     emit('recent-games:update', recent_games)
 
 
-@socketio.on('get-wallet', namespace='/socket.io/')
-def get_wallet_balance():
+@socketio.on('wallet:read', namespace='/socket.io/')
+def get_wallet_balance(data):
 
     if current_user.is_authenticated():
 
-        wallet = current_user.wallet
-
-        if wallet:
-
-            pass
+        emit('wallet:update', [
+            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)},
+            {'currency': 'btc', 'balance': str(current_user.wallet.btc_balance)}
+        ])
 
 
 @socketio.on('finish-game', namespace='/socket.io/')
