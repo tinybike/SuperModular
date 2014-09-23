@@ -235,8 +235,6 @@ var dyffy = {
 
         var self = this;
 
-        this.smalltalk();
-
         // set game timer if we've detected one
         if (typeof game_end_time != 'undefined') {
         	this.setGameTimer(game_current_time, game_end_time);
@@ -246,47 +244,7 @@ var dyffy = {
         this.game_id = $('.game[data-game-id]').attr('data-game-id');
 
         // populate chats
-        socket.emit('get-chats');
-
-    	// get and render friend lists
-        var request_template = _.template('<li class="request"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status"><a class="accept" data-user-id="<%= u.id %>"><i class="fa fa-check-square"></i></a><a class="reject" data-user-id="<%= u.id %>"><i class="fa fa-minus-square"></i></a></div></li>');
-		var pending_template = _.template('<li class="pending"><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span><div class="status">pending</div></li>');
-		var friend_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span><%= u.username %></span></li>');
-		var others_template = _.template('<li><% if (u.avatar) { %><img class="avatar" src="<%= u.avatar %>" /><% } else { %><i class="fa fa-user"></i><% }; %><span class="friendable"><%= u.username %></span></li>');
-        
-        socket.on('friend-list', function (message) {
-
-            if (message['friends']) {
-
-            	var e = $('#friends ul');
-            	e.empty();
-            	$(message.friends.request).each(function(i, f) {
-            		e.append(request_template({u: f}));
-            	});
-            	$(message.friends.pending).each(function(i, f) {
-            		e.append(pending_template({u: f}));
-            	});
-            	$(message.friends.friends).each(function(i, f) {
-            		e.append(friends_template({u: f}));
-            	})
-            }
-
-            if (message['others']) {
-
-            	var e = $('#others ul');
-            	e.empty();
-            	$(message['others']).each(function(i, f) {
-            		e.append(others_template({u: f}));
-            	})
-            }
-
-            self.smalltalk();
-        });
-
-        // test socket
-        socket.on('test', function (message) {
-            console.log('test');
-        });
+        socket.emit('get-chats'); 
 
         // game over
         socket.on('game-over', function (message) {
@@ -357,13 +315,6 @@ var dyffy = {
         	
         });
 
-        // update balances
-        socket.on('balance', function (message) {
-            $.each(message, function(k, v) {
-            	$('#'+k+'-balance .amount').text(v);
-            })
-        });
-
         // chat
         $('form#broadcast').submit(function (event) {
             event.preventDefault();
@@ -428,36 +379,6 @@ var dyffy = {
 
     },
 
-    smalltalk: function() {
-
-        var self = this;
-
-        $('.friendable').each(function(i , e) {
-
-        	var a = $('<i/>').addClass('fa fa-plus-square-o add-friend');
-        	$(e).append(a);
-        	$(e).on('click', function(event) {
-        		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-request', {'user_id': user_id});	
-        	});
-
-        });
-
-        $('.status .accept').each(function(i , e) {
-        	$(e).on('click', function(event) {
-        		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-accept', {'user_id': user_id});
-        	});
-        });
-
-        $('.status .reject').each(function(i , e) {
-        	$(e).on('click', function(event) {
-        		var user_id = $(e).attr('data-user-id');
-        		socket.emit('friend-reject', {'user_id': user_id});
-        	});
-        });
-    },
-
     modal: function(bodytext, bodytag, headertext) {
 
         var modal_body;
@@ -477,4 +398,4 @@ var dyffy = {
     }
 };
 
-//$(document).ready(function () { dyffy.init() });
+$(document).ready(function () { dyffy.init() });

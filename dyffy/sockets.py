@@ -72,8 +72,7 @@ def wallet(data):
     if current_user.is_authenticated():
 
         emit('wallet:update', [
-            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)},
-            {'currency': 'btc', 'balance': str(current_user.wallet.btc_balance)}
+            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)}
         ])
 
 
@@ -85,8 +84,7 @@ def finish_game(data):
     if g.finished:
 
         emit('wallet:update', [
-            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)},
-            {'currency': 'btc', 'balance': str(current_user.wallet.btc_balance)}
+            {'currency': 'dyf', 'balance': str(current_user.wallet.dyf_balance)}
         ])
 
     else:
@@ -102,7 +100,7 @@ def friends(data):
         friends, others = current_user.get_friends()
 
         app.logger.info(friends)
-        
+
         emit('friends:update', friends)
 
 
@@ -178,7 +176,7 @@ def friend_reject(data):
 
 
 @socketio.on('get-chats', namespace='/socket.io/')
-def get_chats(data):
+def get_chats():
 
     if current_user.is_authenticated():
 
